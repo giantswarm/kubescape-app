@@ -12,14 +12,6 @@
                     "type": "string"
                 }
             }
-        },
-        "registry": {
-            "type": "object",
-            "properties": {
-                "domain": {
-                    "type": "string"
-                }
-            }
         }
     }
 }
