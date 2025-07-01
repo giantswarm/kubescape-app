@@ -1,7 +1,7 @@
 apiVersion: vendir.k14s.io/v1alpha1
 kind: Config
 directories:
-- path: helm/kubescape/charts/kubescape
+- path: helm/kubescape/charts/kubescape-operator
   contents:
   - path: .
     git:

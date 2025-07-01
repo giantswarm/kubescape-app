@@ -19,6 +19,5 @@ annotations:
   application.giantswarm.io/team: shield
 
 dependencies:
-  - name: kubescape
-    alias: kubescape-operator
+  - name: kubescape-operator
     version: 1.28.0
