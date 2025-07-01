@@ -20,4 +20,5 @@ annotations:
 
 dependencies:
   - name: kubescape
+    alias: kubescape-operator
     version: 1.28.0
