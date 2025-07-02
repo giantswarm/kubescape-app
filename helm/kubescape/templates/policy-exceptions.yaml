@@ -72,6 +72,25 @@ spec:
             - kubescape-scheduler-*
           namespaces:
             - kubescape
+      - resources:
+          kinds:
+            - Deployment
+            - Pod
+          names:
+            - storage
+            - storage-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - CronJob
+            - Job
+            - Pod
+          names:
+            - kubevuln-scheduler
+            - kubevuln-scheduler-*
+          namespaces:
+            - kubescape
 ---
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
@@ -132,49 +151,10 @@ spec:
     - policyName: disallow-capabilities-strict
       ruleNames:
         - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: require-run-as-nonroot
-spec:
-  exceptions:
-    - policyName: require-run-as-nonroot
-      ruleNames:
-        - run-as-non-root
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
+        - autogen-adding-capabilities-strict
+        - adding-capabilities-strict
+        - autogen-cronjob-require-drop-all
         - autogen-require-drop-all
-        - require-drop-all
   match:
     all:
       - resources:
@@ -184,6 +164,52 @@ spec:
           names:
             - storage
             - storage-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - DaemonSet
+            - Pod
+          names:
+            - node-agent
+            - node-agent-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - CronJob
+            - Job
+            - Pod
+          names:
+            - kubevuln-scheduler
+            - kubevuln-scheduler-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - Deployment
+            - Pod
+          names:
+            - kubevuln
+            - kubevuln-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - Deployment
+            - Pod
+          names:
+            - kubescape
+            - kubescape-*
+          namespaces:
+            - kubescape
+      - resources:
+          kinds:
+            - Deployment
+            - Pod
+          names:
+            - operator
+            - operator-*
           namespaces:
             - kubescape
 ---
@@ -216,27 +242,6 @@ kind: PolicyException
 metadata:
   creationTimestamp: null
   labels: {}
-  name: prevent-bare-pods
-spec:
-  exceptions:
-    - policyName: prevent-bare-pods
-      ruleNames:
-        - bare-pods
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
   name: disallow-selinux
 spec:
   exceptions:
@@ -244,54 +249,6 @@ spec:
       ruleNames:
         - autogen-selinux-type
         - selinux-type
-  match:
-    all:
-      - resources:
-          kinds:
-            - DaemonSet
-            - Pod
-          names:
-            - node-agent
-            - node-agent-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - DaemonSet
-            - Pod
-          names:
-            - node-agent
-            - node-agent-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-adding-capabilities-strict
-        - adding-capabilities-strict
   match:
     all:
       - resources:
@@ -333,53 +290,6 @@ kind: PolicyException
 metadata:
   creationTimestamp: null
   labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-cronjob-require-drop-all
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - CronJob
-            - Job
-            - Pod
-          names:
-            - kubevuln-scheduler
-            - kubevuln-scheduler-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-privilege-escalation
-spec:
-  exceptions:
-    - policyName: disallow-privilege-escalation
-      ruleNames:
-        - privilege-escalation
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
   name: restrict-volume-types
 spec:
   exceptions:
@@ -396,32 +306,6 @@ spec:
           names:
             - node-agent
             - node-agent-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-cronjob-require-drop-all
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - CronJob
-            - Job
-            - Pod
-          names:
-            - kubescape-scheduler
-            - kubescape-scheduler-*
           namespaces:
             - kubescape
 ---
@@ -454,30 +338,6 @@ kind: PolicyException
 metadata:
   creationTimestamp: null
   labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - Deployment
-            - Pod
-          names:
-            - kubevuln
-            - kubevuln-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
   name: disallow-host-namespaces
 spec:
   exceptions:
@@ -502,75 +362,6 @@ kind: PolicyException
 metadata:
   creationTimestamp: null
   labels: {}
-  name: disallow-latest-tag
-spec:
-  exceptions:
-    - policyName: disallow-latest-tag
-      ruleNames:
-        - require-image-tag
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: restrict-apparmor-profiles
-spec:
-  exceptions:
-    - policyName: restrict-apparmor-profiles
-      ruleNames:
-        - autogen-app-armor
-        - app-armor
-  match:
-    all:
-      - resources:
-          kinds:
-            - Deployment
-            - Pod
-          names:
-            - storage
-            - storage-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - Deployment
-            - Pod
-          names:
-            - operator
-            - operator-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
   name: require-run-as-nonroot
 spec:
   exceptions:
@@ -587,76 +378,5 @@ spec:
           names:
             - node-agent
             - node-agent-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: restrict-apparmor-profiles
-spec:
-  exceptions:
-    - policyName: restrict-apparmor-profiles
-      ruleNames:
-        - autogen-cronjob-app-armor
-        - autogen-app-armor
-        - app-armor
-  match:
-    all:
-      - resources:
-          kinds:
-            - CronJob
-            - Job
-            - Pod
-          names:
-            - kubevuln-scheduler
-            - kubevuln-scheduler-*
-          namespaces:
-            - kubescape
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: restrict-seccomp-strict
-spec:
-  exceptions:
-    - policyName: restrict-seccomp-strict
-      ruleNames:
-        - check-seccomp-strict
-  match:
-    all:
-      - resources:
-          kinds:
-            - Pod
-          names:
-            - storage-test-connection
-          namespaces:
-            - default
----
-apiVersion: kyverno.io/v2beta1
-kind: PolicyException
-metadata:
-  creationTimestamp: null
-  labels: {}
-  name: disallow-capabilities-strict
-spec:
-  exceptions:
-    - policyName: disallow-capabilities-strict
-      ruleNames:
-        - autogen-require-drop-all
-        - require-drop-all
-  match:
-    all:
-      - resources:
-          kinds:
-            - Deployment
-            - Pod
-          names:
-            - kubescape
-            - kubescape-*
           namespaces:
             - kubescape
