@@ -2,6 +2,7 @@
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-capabilities
@@ -26,6 +27,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: require-run-as-non-root-user
@@ -50,6 +52,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: restrict-apparmor-profiles
@@ -95,6 +98,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: require-emptydir-requests-and-limits
@@ -119,6 +123,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: restrict-seccomp-strict
@@ -143,6 +148,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-capabilities-strict
@@ -216,6 +222,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-privilege-escalation
@@ -240,6 +247,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-selinux
@@ -264,6 +272,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: require-emptydir-requests-and-limits
@@ -288,6 +297,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: restrict-volume-types
@@ -312,6 +322,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-host-path
@@ -336,6 +347,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: disallow-host-namespaces
@@ -360,6 +372,7 @@ spec:
 apiVersion: kyverno.io/v2beta1
 kind: PolicyException
 metadata:
+  namespace: policy-exceptions
   creationTimestamp: null
   labels: {}
   name: require-run-as-nonroot
