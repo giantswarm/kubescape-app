@@ -9,4 +9,6 @@ directories:
       ref: kubescape-operator-1.28.0
     includePaths:
       - charts/kubescape-operator/**
+    excludePaths:
+      - charts/kubescape-operator/tests/**
     newRootPath: charts/kubescape-operator
