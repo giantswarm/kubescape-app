@@ -3,3 +3,59 @@
 image:
   name: ""
   tag: ""
+
+kubescape-operator:
+  kubescape:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape"
+  operator:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-operator"
+  kubevuln:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
+  storage:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
+  nodeAgent:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
+  serviceDiscovery:
+    # urlDiscovery:
+    #   image:
+    # NOT RETAGGED YET
+    #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+    configMapUpdate:
+      image:
+        repository: "gsoci.azurecr.io/giantswarm/kubectl"
+
+  # NOT RETAGGED YET
+  # hostScanner:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-host-scanner"
+  #
+  # clamav:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-clamav"
+  #
+  # synchronizer:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
+  # otelCollector:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
+  # prometheusExporter:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
+  # helmRelease?upgrader:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-helm-release-upgrader"
+  # kubescapeScheduler:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+  # kubevulnScheduler:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+  # registryScanScheduler:
+  #   image:
+  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"

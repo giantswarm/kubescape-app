@@ -20,3 +20,5 @@ workflows:
             ignore:
             - main
             - master
+    - architect/run-kyverno-tests:
+        name: execute kyverno policy evaluation
