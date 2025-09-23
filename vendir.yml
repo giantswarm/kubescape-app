@@ -12,3 +12,12 @@ directories:
     excludePaths:
       - charts/kubescape-operator/tests/**
     newRootPath: charts/kubescape-operator
+- path: helm/kubescape/charts/dependency_chart
+  contents:
+  - path: .
+    git:
+      url: https://github.com/kubescape/helm-charts
+      ref: kubescape-operator-1.28.0
+    includePaths:
+      - charts/dependency_chart/**
+    newRootPath: charts/dependency_chart
