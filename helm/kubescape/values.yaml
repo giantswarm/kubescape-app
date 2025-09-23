@@ -1,5 +1,8 @@
 # Values for the kubescape operator app
 
+exceptions:
+  enabled: false
+
 image:
   name: ""
   tag: ""
