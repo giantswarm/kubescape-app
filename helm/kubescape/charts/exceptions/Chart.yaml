@@ -1,0 +1,10 @@
+apiVersion: v2
+
+name: exceptions
+
+# Please describe what the app provides in a sentence or two.
+description: This chart contains the necessary Giant Swarm Exceptions for the Kubescape App.
+
+version: 0.0.0
+annotations:
+  application.giantswarm.io/team: shield

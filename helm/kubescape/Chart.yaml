@@ -19,5 +19,7 @@ annotations:
   application.giantswarm.io/team: shield
 
 dependencies:
+  - name: exceptions
+    version: 0.0.0
   - name: kubescape-operator
     version: 1.28.0
