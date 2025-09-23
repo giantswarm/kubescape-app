@@ -1,0 +1,135 @@
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: kubescape
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: kubescape-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+    - require-emptydir-requests-and-limits
+  targets:
+    - kind: Deployment
+      names:
+        - kubescape*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: CronJob
+    policy.giantswarm.io/resource-name: kubescape-scheduler
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: kubescape-scheduler-cronjob
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: CronJob
+      names:
+        - kubescape-scheduler*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: kubevuln
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: kubevuln-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: Deployment
+      names:
+        - kubevuln*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: CronJob
+    policy.giantswarm.io/resource-name: kubevuln-scheduler
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: kubevuln-scheduler-cronjob
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: CronJob
+      names:
+        - kubevuln-scheduler*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: DaemonSet
+    policy.giantswarm.io/resource-name: node-agent
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: node-agent-daemonset
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+    - require-emptydir-requests-and-limits
+  targets:
+    - kind: DaemonSet
+      names:
+        - node-agent*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: operator
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: operator-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: Deployment
+      names:
+        - operator*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: storage
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: storage-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: Deployment
+      names:
+        - storage*
+      namespaces:
+        - kubescape
