@@ -145,7 +145,6 @@ configurations:
   excludeJsonPaths:
     # - ".containers[*].env[?(@.name==\"DD_INJECT_ID\")]"
 
-
 # installation of the alertCRD chart
 alertCRD:
   installDefault: false # install the default CRD
@@ -198,7 +197,7 @@ persistence:
   # -- persistence size
   size:
     backingStorage: 5Gi
-    kubevuln: 2Gi
+    kubevuln: 5Gi
 
 global:
   httpsProxy: ""
@@ -258,7 +257,7 @@ kubescape:
   image:
     # -- source code: https://github.com/kubescape/kubescape/tree/master/httphandler (public repo)
     repository: quay.io/kubescape/kubescape
-    tag: v3.0.34
+    tag: v3.0.41
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -315,7 +314,7 @@ operator:
   image:
     # -- source code: https://github.com/kubescape/operator
     repository: quay.io/kubescape/operator
-    tag: v0.2.91
+    tag: v0.2.108
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -363,7 +362,7 @@ kubevuln:
   image:
     # -- source code: https://github.com/kubescape/kubevuln
     repository: quay.io/kubescape/kubevuln
-    tag: v0.3.80
+    tag: v0.3.92
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -384,7 +383,6 @@ kubevuln:
       cpu: 300m
       memory: 1000Mi
       # Consider to increase ephemeral-storage requests in order to avoid pod eviction due to huge images
-      # More details: https://hub.armosec.io/docs/limitations
       #               https://github.com/kubescape/kubescape/issues/389
       ephemeral-storage: 5Gi
     limits:
@@ -410,6 +408,14 @@ kubevuln:
   # Additional volumeMounts to be mounted on the vulnerability scanning microservice
   volumeMounts: []
 
+  tmpDirPersistence:
+    enabled: false
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 50Gi
+    annotations: {}
+
 # +++++++++++++++++++++++++++++++ Host-scanner ++++++++++++++++++++++++++++++++++++++++++++++++
 
 hostScanner:
@@ -417,7 +423,7 @@ hostScanner:
   image:
     # -- source code: https://github.com/kubescape/host-scanner (public repo)
     repository: quay.io/kubescape/host-scanner
-    tag: v1.0.73
+    tag: v1.0.76
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -463,7 +469,7 @@ storage:
   image:
     # -- source code: https://github.com/kubescape/storage
     repository: quay.io/kubescape/storage
-    tag: v0.0.185
+    tag: v0.0.220
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -482,6 +488,44 @@ storage:
       cpu: 1500m
       memory: 1500Mi
 
+  disableVirtualCRDs: false  # set to true or false to override auto-detection
+
+  # -- queue manager configuration
+  queueManagerEnabled: true # set to false to disable the queue manager, this will disable the queue manager for all kinds
+  defaultQueueLength: 100
+  defaultWorkerCount: 2
+  defaultMaxObjectSize: 400000 # in bytes, this is the maximum size of an object that can be stored in the storage service
+  kindQueues:
+    # -- set the queues for the different kinds, the default is to use the default queue length and worker count
+    applicationprofiles:
+      queueLength: 50
+      workerCount: 2
+      maxObjectSize: 20000000
+    containerprofiles:
+      queueLength: 50
+      workerCount: 2
+      maxObjectSize: 2500000
+    networkneighborhoods:
+      queueLength: 50
+      workerCount: 2
+      maxObjectSize: 10000000
+    openvulnerabilityexchangecontainers:
+      queueLength: 50
+      workerCount: 1
+      maxObjectSize: 500000
+    sbomsyftfiltereds:
+      queueLength: 50
+      workerCount: 1
+      maxObjectSize: 50000000
+    sbomsyfts:
+      queueLength: 50
+      workerCount: 1
+      maxObjectSize: 100000000
+    vulnerabilitymanifests:
+      queueLength: 50
+      workerCount: 1
+      maxObjectSize: 50000000
+
 # +++++++++++++++++++++++++++++ Node-agent ++++++++++++++++++++++++++++++++++++++++++++++++
 
 nodeAgent:
@@ -489,7 +533,7 @@ nodeAgent:
   image:
     # -- source code: https://github.com/kubescape/node-agent
     repository: quay.io/kubescape/node-agent
-    tag: v0.2.345
+    tag: v0.2.393
     pullPolicy: IfNotPresent
 
   config:
@@ -520,7 +564,7 @@ nodeAgent:
   gke:
     allowlist:
       enabled: false
-      name: armo-kubescape-node-agent-1.28
+      name: armo-kubescape-node-agent-1.29
 
   # prometheus (operator) service monitor
   serviceMonitor:
@@ -561,7 +605,7 @@ nodeAgent:
       name: kubeletdir
     - mountPath: /run
       name: run
-      readOnly: false # Must be writable for the node-agent to open container runtime socket for writing
+      # readOnly: false # Must be writable for the node-agent to open container runtime socket for writing
     - mountPath: /var
       name: var
       readOnly: true
@@ -570,22 +614,25 @@ nodeAgent:
       readOnly: true
     - mountPath: /sys/kernel/debug
       name: debugfs
-      readOnly: false # Must be writable for the node-agent to load eBPF programs
+      # readOnly: false # Must be writable for the node-agent to load eBPF programs
     - mountPath: /sys/fs/cgroup
       name: cgroup
       readOnly: true
     - mountPath: /sys/fs/bpf
       name: bpffs
-      readOnly: false # Must be writable for the node-agent to load eBPF programs
+      # readOnly: false # Must be writable for the node-agent to load eBPF programs
     - mountPath: /data
       name: data
-      readOnly: false # EmptyDir volume
+      # readOnly: false # EmptyDir volume
+    - mountPath: /profiles
+      name: profiles
+      # readOnly: false # EmptyDir volume
     - mountPath: /boot
       name: boot
       readOnly: true
     - mountPath: /clamav
       name: clamrun
-      readOnly: false # EmptyDir volume
+      # readOnly: false # EmptyDir volume
 
   volumes:
     - hostPath:
@@ -617,6 +664,8 @@ nodeAgent:
       name: boot
     - emptyDir:
       name: data
+    - emptyDir:
+      name: profiles
 
   affinity:
     nodeAffinity:
@@ -634,6 +683,21 @@ nodeAgent:
   startupJitterContainer:
     enabled: false
     maxStartupJitter: 60
+
+  multipleDaemonSets:
+    enabled: false # set to true to enable multiple DaemonSets for the node-agent, with different configurations.
+    configurations:
+    # - nodeSelector:
+    #     kubernetes.io/os: linux
+    #   resources:
+    #     requests:
+    #       cpu: 100m
+    #       memory: 180Mi
+    #     limits:
+    #       cpu: 500m
+    #       memory: 1400Mi
+    #
+    # uncomment when enabled and add more configurations as needed
 
 # +++++++++++++++++++++++++++++++ ClamAV ++++++++++++++++++++++++++++++++++++++++++++++++
 clamav:
@@ -655,10 +719,10 @@ clamav:
   volumeMounts:
     - mountPath: /var/lib/clamav-tmp
       name: clamdb
-      readOnly: false
+      # readOnly: false
     - mountPath: /run/clamav
       name: clamrun
-      readOnly: false
+      # readOnly: false
     - mountPath: /etc/clamav
       name: etc
       readOnly: true
@@ -696,7 +760,7 @@ synchronizer:
   image:
     # -- source code: https://github.com/kubescape/synchronizer
     repository: quay.io/kubescape/synchronizer
-    tag: v0.0.110
+    tag: v0.0.116
     pullPolicy: IfNotPresent
   nodeSelector:
     kubernetes.io/os: linux
@@ -723,6 +787,7 @@ synchronizer:
 
 # opentelemetry collector
 otelCollector:
+  disable: true
   name: otel-collector
 
   endpoint:
@@ -760,7 +825,7 @@ grypeOfflineDB:
   image:
     repository: quay.io/kubescape/grype-offline-db
     tag: "" # use latest for weekly updates, it will overwrite the sha if specified
-    sha: sha256:155db3be4baa461a50cebadfc8f52108fca71aa4ce5e460a30a4e0922e899ed2
+    sha: sha256:56468cbe92622770860f5c2f96b43aca836f6466c1c95116a107d461f8de8592
     pullPolicy: Always
 
   nodeSelector:
@@ -789,7 +854,7 @@ serviceDiscovery:
     name: url-discovery
     image:
       repository: quay.io/kubescape/http-request
-      tag: v0.2.11
+      tag: v0.2.14
       pullPolicy: IfNotPresent
 
     # Skip SSL certificate verification
@@ -822,7 +887,7 @@ prometheusExporter:
   name: "prometheus-exporter"
   image:
     repository: quay.io/kubescape/prometheus-exporter
-    tag: v0.2.4
+    tag: v0.2.7
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -922,7 +987,7 @@ kubescapeScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.11
+    tag: v0.2.14
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -968,7 +1033,7 @@ kubevulnScheduler:
   image:
     # source code - https://github.com/kubescape/http-request
     repository: quay.io/kubescape/http-request
-    tag: v0.2.11
+    tag: v0.2.14
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -1016,7 +1081,7 @@ registryScanScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.11
+    tag: v0.2.14
     pullPolicy: IfNotPresent
 
   nodeSelector:
