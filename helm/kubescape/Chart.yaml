@@ -16,7 +16,5 @@ dependencies:
   - name: exceptions
     version: 0.0.0
     condition: exceptions.enabled
-  - name: dependency_chart
-    version: 0.0.0
   - name: kubescape-operator
-    version: 1.28.0
+    version: ">1.28.0"
