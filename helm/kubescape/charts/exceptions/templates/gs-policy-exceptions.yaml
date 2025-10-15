@@ -88,6 +88,8 @@ metadata:
 spec:
   policies:
     - disallow-capabilities-strict
+    - disallow-capabilities
+    - restrict-volume-types
     - require-emptydir-requests-and-limits
   targets:
     - kind: DaemonSet
