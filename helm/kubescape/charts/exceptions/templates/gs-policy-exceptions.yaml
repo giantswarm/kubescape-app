@@ -118,6 +118,7 @@ metadata:
 spec:
   policies:
     - disallow-capabilities-strict
+    - require-emptydir-requests-and-limits
   targets:
     - kind: Deployment
       names:
