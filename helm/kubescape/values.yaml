@@ -9,6 +9,8 @@ image:
   tag: ""
 
 kubescape-operator:
+  configurations:
+    prometheusAnnotations:
   kubescape:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
@@ -22,8 +24,17 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
   nodeAgent:
+    config:
+      prometheusExporter: enable
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
+  prometheusExporter:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   serviceDiscovery:
     # urlDiscovery:
     #   image:
@@ -48,9 +59,6 @@ kubescape-operator:
   # otelCollector:
   #   image:
   #     repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
-  # prometheusExporter:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   # helmRelease?upgrader:
   #   image:
   #     repository: "gsoci.azurecr.io/giantswarm/kubescape-helm-release-upgrader"
