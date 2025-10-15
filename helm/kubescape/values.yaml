@@ -9,8 +9,6 @@ image:
   tag: ""
 
 kubescape-operator:
-  configurations:
-    prometheusAnnotations:
   kubescape:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
