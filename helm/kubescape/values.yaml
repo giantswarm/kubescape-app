@@ -10,7 +10,7 @@ image:
 
 kubescape-operator:
   capabilities:
-    configurationScan: false
+    configurationScan: disable
     continuousScan: enable
     nodeScan: enable
 
@@ -36,6 +36,27 @@ kubescape-operator:
   storage:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
+  hostScanner:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-host-scanner"
+  clamav:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-clamav"
+  synchronizer:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
+  otelCollector:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
+  kubescapeScheduler:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+  kubevulnScheduler:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+  registryScanScheduler:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
   nodeAgent:
     config:
       stdoutExporter: true
@@ -53,38 +74,9 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   serviceDiscovery:
-    # urlDiscovery:
-    #   image:
-    # NOT RETAGGED YET
-    #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
+    urlDiscovery:
+      image:
+        repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
     configMapUpdate:
       image:
         repository: "gsoci.azurecr.io/giantswarm/kubectl"
-
-  # NOT RETAGGED YET
-  # hostScanner:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-host-scanner"
-  #
-  # clamav:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-clamav"
-  #
-  # synchronizer:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
-  # otelCollector:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
-  # helmRelease?upgrader:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-helm-release-upgrader"
-  # kubescapeScheduler:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
-  # kubevulnScheduler:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
-  # registryScanScheduler:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
