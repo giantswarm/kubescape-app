@@ -10,7 +10,7 @@ image:
 
 kubescape-operator:
   capabilities:
-    configurationScan: false
+    configurationScan: disable
     continuousScan: enable
     nodeScan: enable
 

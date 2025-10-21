@@ -31,7 +31,7 @@
                     "type": "object",
                     "properties": {
                         "configurationScan": {
-                            "type": "boolean"
+                            "type": "string"
                         },
                         "continuousScan": {
                             "type": "string"
