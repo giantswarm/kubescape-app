@@ -87,8 +87,18 @@ metadata:
   namespace: {{ .Values.namespace }}
 spec:
   policies:
-    - disallow-capabilities-strict
-    - require-emptydir-requests-and-limits
+  - disallow-host-namespaces
+  - disallow-host-path
+  - disallow-privilege-escalation
+  - disallow-selinux
+  - disallow-capabilities-strict
+  - disallow-capabilities
+  - require-run-as-non-root-user
+  - require-run-as-nonroot
+  - restrict-apparmor-profiles
+  - restrict-seccomp-strict
+  - restrict-volume-types
+  - require-emptydir-requests-and-limits
   targets:
     - kind: DaemonSet
       names:
@@ -108,6 +118,7 @@ metadata:
 spec:
   policies:
     - disallow-capabilities-strict
+    - require-emptydir-requests-and-limits
   targets:
     - kind: Deployment
       names:

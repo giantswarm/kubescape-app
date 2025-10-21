@@ -9,6 +9,21 @@ image:
   tag: ""
 
 kubescape-operator:
+  capabilities:
+    configurationScan: false
+    continuousScan: enable
+    nodeScan: enable
+
+    vulnerabilityScan: enable
+    relevancy: enable
+    malwareDetection: enable
+
+    runtimeObservability: enable
+    networkPolicyService: enable
+    runtimeDetection: enable
+    nodeProfileService: enable
+    seccompProfileService: enable
+
   kubescape:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
@@ -22,8 +37,21 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
   nodeAgent:
+    config:
+      stdoutExporter: true
+      maxLearningPeriod: 12h
+      learningPeriod: 2m
+      updatePeriod: 10m
+      prometheusExporter: enable
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
+  prometheusExporter:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   serviceDiscovery:
     # urlDiscovery:
     #   image:
@@ -48,9 +76,6 @@ kubescape-operator:
   # otelCollector:
   #   image:
   #     repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
-  # prometheusExporter:
-  #   image:
-  #     repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   # helmRelease?upgrader:
   #   image:
   #     repository: "gsoci.azurecr.io/giantswarm/kubescape-helm-release-upgrader"
