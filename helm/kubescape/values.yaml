@@ -41,7 +41,7 @@ kubescape-operator:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-host-scanner"
   clamav:
     image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-clamav"
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-klamav"
   synchronizer:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
