@@ -1,3 +1,2 @@
-apiVersion: v2
-version: 0.0.0
 name: dependency_chart
+version: 0.0.0

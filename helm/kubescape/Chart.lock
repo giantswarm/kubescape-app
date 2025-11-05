@@ -1,9 +1,0 @@
-dependencies:
-- name: exceptions
-  repository: ""
-  version: 0.0.0
-- name: kubescape-operator
-  repository: ""
-  version: 1.28.0
-digest: sha256:0b007fe39d11a4c74bbeba572849aa59df6ba600966e7d389d5042687fe87325
-generated: "2025-09-22T22:10:20.012957-03:00"
