@@ -9,7 +9,7 @@ home: https://github.com/giantswarm/kubescape
 icon: https://s.giantswarm.io/app-icons/kubescape/1/color.svg
 sources:
   - https://github.com/kubescape/helm-charts
-version: 0.0.2
+version: 0.0.3
 annotations:
   application.giantswarm.io/team: shield
 dependencies:
