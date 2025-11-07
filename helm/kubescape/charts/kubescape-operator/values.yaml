@@ -887,7 +887,7 @@ prometheusExporter:
   name: "prometheus-exporter"
   image:
     repository: quay.io/kubescape/prometheus-exporter
-    tag: v0.2.7
+    tag: v0.2.10
     pullPolicy: IfNotPresent
 
   nodeSelector:
