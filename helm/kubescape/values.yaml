@@ -9,6 +9,8 @@ image:
   tag: ""
 
 kubescape-operator:
+  alertCRD:
+    installDefault: true
   capabilities:
     configurationScan: disable
     continuousScan: enable
@@ -60,7 +62,7 @@ kubescape-operator:
   nodeAgent:
     config:
       stdoutExporter: true
-      maxLearningPeriod: 12h
+      maxLearningPeriod: 10m
       learningPeriod: 2m
       updatePeriod: 10m
       prometheusExporter: enable
