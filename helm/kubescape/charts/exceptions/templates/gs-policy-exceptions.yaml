@@ -144,3 +144,22 @@ spec:
         - storage*
       namespaces:
         - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: prometheus-exporter
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: prometheus-exporter-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: Deployment
+      names:
+        - prometheus-exporter*
+      namespaces:
+        - kubescape
