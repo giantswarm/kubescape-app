@@ -10,7 +10,7 @@ image:
 
 kubescape-operator:
   capabilities:
-    configurationScan: disable
+    configurationScan: enable
     continuousScan: enable
     nodeScan: enable
 
@@ -23,6 +23,8 @@ kubescape-operator:
     runtimeDetection: enable
     nodeProfileService: enable
     seccompProfileService: enable
+
+    prometheusExporter: enable
 
   kubescape:
     serviceMonitor:
@@ -38,6 +40,7 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
   storage:
+    forceVirtualCrds: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
   hostScanner:
@@ -75,6 +78,7 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
   prometheusExporter:
+    enableWorkloadMetrics: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
   serviceDiscovery:
