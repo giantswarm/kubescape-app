@@ -2,6 +2,8 @@
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: Deployment
     policy.giantswarm.io/resource-name: kubescape
@@ -22,6 +24,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: CronJob
     policy.giantswarm.io/resource-name: kubescape-scheduler
@@ -41,6 +45,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: Deployment
     policy.giantswarm.io/resource-name: kubevuln
@@ -60,6 +66,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: CronJob
     policy.giantswarm.io/resource-name: kubevuln-scheduler
@@ -79,6 +87,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: DaemonSet
     policy.giantswarm.io/resource-name: node-agent
@@ -109,6 +119,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: Deployment
     policy.giantswarm.io/resource-name: operator
@@ -129,6 +141,8 @@ spec:
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: Deployment
     policy.giantswarm.io/resource-name: storage
@@ -142,5 +156,26 @@ spec:
     - kind: Deployment
       names:
         - storage*
+      namespaces:
+        - kubescape
+---
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+  labels:
+    policy.giantswarm.io/resource-kind: Deployment
+    policy.giantswarm.io/resource-name: prometheus-exporter
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: prometheus-exporter-deployment
+  namespace: {{ .Values.namespace }}
+spec:
+  policies:
+    - disallow-capabilities-strict
+  targets:
+    - kind: Deployment
+      names:
+        - prometheus-exporter*
       namespaces:
         - kubescape
