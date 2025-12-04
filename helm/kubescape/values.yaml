@@ -25,6 +25,10 @@ kubescape-operator:
     seccompProfileService: enable
 
   kubescape:
+    serviceMonitor:
+      enabled: true
+      additionalLabels:
+        application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
   operator:
