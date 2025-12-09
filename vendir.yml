@@ -6,7 +6,7 @@ directories:
   - path: .
     git:
       url: https://github.com/kubescape/helm-charts
-      ref: kubescape-operator-1.29.8
+      ref: kubescape-operator-1.29.12
     includePaths:
       - charts/kubescape-operator/**
     excludePaths:
@@ -17,7 +17,7 @@ directories:
   - path: .
     git:
       url: https://github.com/kubescape/helm-charts
-      ref: kubescape-operator-1.29.8
+      ref: kubescape-operator-1.29.12
     includePaths:
       - charts/dependency_chart/**
     newRootPath: charts/dependency_chart
