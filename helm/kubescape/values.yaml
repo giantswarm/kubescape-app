@@ -17,7 +17,7 @@ kubescape-operator:
 
     vulnerabilityScan: enable
     scanEmbeddedSBOMs: disable
-    relevancy: enable
+    relevancy: disable
     malwareDetection: enable
 
     runtimeObservability: enable
