@@ -16,6 +16,7 @@ kubescape-operator:
     nodeScan: enable
 
     vulnerabilityScan: enable
+    scanEmbeddedSBOMs: disable
     relevancy: enable
     malwareDetection: enable
 
@@ -24,6 +25,7 @@ kubescape-operator:
     runtimeDetection: enable
     nodeProfileService: enable
     seccompProfileService: enable
+    nodeSbomGeneration: enable
 
     prometheusExporter: enable
 
