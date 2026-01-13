@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Update `kubescape` operator to v1.29.12.
 - Enable extra ServiceMonitor.
 
 ## [0.0.4] - 2025-11-05

@@ -10,12 +10,14 @@ image:
 
 kubescape-operator:
   capabilities:
+    operator: enable
     configurationScan: enable
     continuousScan: enable
     nodeScan: enable
 
     vulnerabilityScan: enable
-    relevancy: enable
+    scanEmbeddedSBOMs: disable
+    relevancy: disable
     malwareDetection: enable
 
     runtimeObservability: enable
@@ -23,6 +25,7 @@ kubescape-operator:
     runtimeDetection: enable
     nodeProfileService: enable
     seccompProfileService: enable
+    nodeSbomGeneration: enable
 
     prometheusExporter: enable
 
