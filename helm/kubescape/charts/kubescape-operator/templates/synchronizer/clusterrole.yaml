@@ -52,7 +52,7 @@ rules:
     resources: ["servicesscanresults"]
     verbs: ["get", "watch", "list"]
   - apiGroups: ["kubescape.io"]
-    resources: ["operatorcommands"]
+    resources: ["operatorcommands", "rules"]
     verbs: ["get", "watch", "list", "create", "update", "patch", "delete"]
 {{- if eq .Values.capabilities.syncSBOM "enable" }}
   - apiGroups: ["spdx.softwarecomposition.kubescape.io"]
@@ -60,9 +60,15 @@ rules:
     verbs: [ "get", "watch", "list"]
 {{- end }}
 {{- if eq .Values.capabilities.manageWorkloads "enable" }}
+  {{- if eq .Values.capabilities.seccompProfileBackend "crd" }}
+  - apiGroups: ["kubescape.io"]
+    resources: ["seccompprofiles"]
+    verbs: ["get", "watch", "list", "create", "update", "patch"]
+  {{- else }}
   - apiGroups: ["spdx.softwarecomposition.kubescape.io"]
     resources: ["seccompprofiles"]
     verbs: ["get", "watch", "list", "create", "update", "patch"]
+  {{- end }}
   - apiGroups: ["networking.k8s.io"]
     resources: ["networkpolicies"]
     verbs: ["create", "update", "patch"]
