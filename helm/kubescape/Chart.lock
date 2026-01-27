@@ -1,0 +1,12 @@
+dependencies:
+- name: exceptions
+  repository: ""
+  version: 0.0.0
+- name: dependency_chart
+  repository: ""
+  version: 0.0.0
+- name: kubescape-operator
+  repository: ""
+  version: '>1.28.0'
+digest: sha256:27953c51851d1eca07b90b05ccbed03fa32552c9bf5c2ce45fcdcd4c27fc62cc
+generated: "2026-01-20T13:04:54.114441-03:00"

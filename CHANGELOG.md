@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Update `kubescape` operator to v1.30.2.
+
 ## [0.0.5] - 2025-12-04
 
 ### Changed
