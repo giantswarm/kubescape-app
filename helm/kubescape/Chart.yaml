@@ -11,9 +11,9 @@ sources:
   - https://github.com/kubescape/helm-charts
 version: 0.0.5
 annotations:
-  application.giantswarm.io/team: shield
   io.giantswarm.application.audience: all
   io.giantswarm.application.managed: "true"
+  io.giantswarm.application.team: shield
 dependencies:
   - name: exceptions
     version: 0.0.0
