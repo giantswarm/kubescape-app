@@ -12,6 +12,8 @@ sources:
 version: 0.0.5
 annotations:
   application.giantswarm.io/team: shield
+  io.giantswarm.application.audience: all
+  io.giantswarm.application.managed: "true"
 dependencies:
   - name: exceptions
     version: 0.0.0
