@@ -7,9 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add `io.giantswarm.application.audience` and `io.giantswarm.application.managed` chart annotations for Backstage visibility.
+
 ### Changed
 
 - Update `kubescape` operator to v1.30.2.
+- Migrate chart metadata annotations to OCI-compatible format.
 
 ## [0.0.5] - 2025-12-04
 
