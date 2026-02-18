@@ -20,3 +20,18 @@ workflows:
             ignore:
             - main
             - master
+
+    - architect/push-to-app-catalog:
+        context: architect
+        executor: app-build-suite
+        name: push-kubescape-chart-to-default-catalog
+        app_catalog: default-catalog
+        app_catalog_test: default-test-catalog
+        persist_chart_archive: true
+        chart: kubescape
+        filters:
+          tags:
+            only: /^v.*/
+          branches:
+            ignore:
+            - main
