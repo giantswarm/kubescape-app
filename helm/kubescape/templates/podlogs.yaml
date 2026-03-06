@@ -9,7 +9,6 @@
   2. The actual component is enabled in the kubescape-operator capabilities
 */ -}}
 {{- $compEnabled := .enabled }}
-{{- if eq .name "clamav" }}{{ $compEnabled = and $compEnabled $components.clamAV.enabled }}{{- end }}
 {{- if eq .name "grype-offline-db" }}{{ $compEnabled = and $compEnabled (and $operatorValues.grypeOfflineDB.enabled (eq $operatorValues.grypeOfflineDB.image.tag "latest")) }}{{- end }}
 {{- if eq .name "host-scanner" }}{{ $compEnabled = and $compEnabled $components.hostScanner.enabled }}{{- end }}
 {{- if eq .name "kubescape" }}{{ $compEnabled = and $compEnabled $components.kubescape.enabled }}{{- end }}
