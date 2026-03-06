@@ -10,6 +10,39 @@ image:
 
 podLogs:
   enabled: true
+  commonLabels: {}
+  commonAnnotations: {}
+  components:
+    - name: operator
+      enabled: true
+      labels: {}
+      annotations: {}
+      matchLabels:
+        app.kubernetes.io/component: operator
+    - name: node-agent
+      enabled: true
+      labels: {}
+      annotations: {}
+      matchLabels:
+        app.kubernetes.io/component: node-agent
+    - name: kubevuln
+      enabled: true
+      labels: {}
+      annotations: {}
+      matchLabels:
+        app.kubernetes.io/component: kubevuln
+    - name: storage
+      enabled: true
+      labels: {}
+      annotations: {}
+      matchLabels:
+        app.kubernetes.io/component: "storage"
+    - name: kubescape
+      enabled: true
+      labels: {}
+      annotations: {}
+      matchLabels:
+        app.kubernetes.io/component: kubescape
 
 kubescape-operator:
   capabilities:
