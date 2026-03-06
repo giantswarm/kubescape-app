@@ -9,6 +9,10 @@ image:
   tag: ""
 
 kubescape-operator:
+  additionalLabels:
+    application.giantswarm.io/team: shield
+    observability.giantswarm.io/tenant: giantswarm
+
   capabilities:
     operator: enable
     configurationScan: enable
@@ -76,8 +80,8 @@ kubescape-operator:
       prometheusExporter: enable
     serviceMonitor:
       enabled: true
-      additionalLabels:
-        application.giantswarm.io/team: shield
+      # additionalLabels:
+      #   application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
   prometheusExporter:
@@ -92,13 +96,20 @@ kubescape-operator:
       image:
         repository: "gsoci.azurecr.io/giantswarm/kubectl"
 
+# This configures PodLogs resources for customer use.
+# Kubescape component logs are already collected for Giant Swarm via labels.
 podLogs:
   enabled: true
+  tenant: ""
   commonLabels: {}
   commonAnnotations: {}
   components:
     - name: grype-offline-db
       enabled: true
+      # annotations: {}
+      # labels: {}
+      # relabelings: {}
+      # tenant: ""
     - name: host-scanner
       enabled: false
     - name: kubescape

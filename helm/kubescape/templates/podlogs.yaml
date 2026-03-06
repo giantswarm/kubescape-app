@@ -47,8 +47,8 @@ metadata:
   {{- end }}
 spec:
   namespaceSelector:
-    matchNames:
-      - {{ $.Release.Namespace }}
+    matchLabels:
+      kubernetes.io/metadata.name: {{ $.Release.Namespace }}
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ $.Release.Name | quote }}
@@ -57,6 +57,16 @@ spec:
       {{- else }}
       app.kubernetes.io/component: {{ .name }}
       {{- end }}
+  {{- $tenant := default (default "" $.Values.podLogs.tenant) .tenant }}
+  {{- if $tenant }}
+  relabelings:
+  - action: replace
+    replacement: {{ $tenant }}
+    targetLabel: giantswarm_observability_tenant
+  {{- end }}
+  {{- with .relabelings }}
+  {{- toYaml . | nindent 2 }}
+  {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
