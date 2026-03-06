@@ -98,26 +98,28 @@ podLogs:
   commonAnnotations: {}
   components:
     - name: grype-offline-db
-      enabled: false
+      enabled: true
     - name: host-scanner
       enabled: false
     - name: kubescape
-      enabled: true
-    - name: kubescape-scheduler
       enabled: false
+    - name: kubescape-scheduler
+      enabled: true
     - name: kubevuln
       enabled: true
     - name: kubevuln-scheduler
-      enabled: false
+      enabled: true
     - name: node-agent
       enabled: true
+      labels:
+        application.giantswarm.io/team: shield
     - name: operator
       enabled: true
     - name: otel-collector
-      enabled: false
+      enabled: true
     - name: prometheus-exporter
-      enabled: false
+      enabled: true
     - name: storage
       enabled: true
     - name: synchronizer
-      enabled: false
+      enabled: true

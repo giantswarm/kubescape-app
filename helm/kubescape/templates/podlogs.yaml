@@ -57,8 +57,6 @@ spec:
       {{- else }}
       app.kubernetes.io/component: {{ .name }}
       {{- end }}
-  pipelineStages:
-    - cri: {}
 {{- end }}
 {{- end }}
 {{- end }}
