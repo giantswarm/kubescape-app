@@ -1,6 +1,28 @@
 {{- if and .Values.podLogs.enabled (.Capabilities.APIVersions.Has "monitoring.grafana.com/v1alpha2/PodLogs") }}
+{{- $operatorValues := index $.Values "kubescape-operator" }}
+{{- $operatorContext := dict "Values" $operatorValues "Chart" $.Chart "Release" $.Release "Capabilities" $.Capabilities "Template" $.Template }}
+{{- $components := fromYaml (include "components" $operatorContext) }}
 {{- range .Values.podLogs.components }}
-{{- if .enabled }}
+{{- /* 
+  A component's PodLog resource is only rendered if both:
+  1. It is enabled in the values.yaml podLogs list (.enabled)
+  2. The actual component is enabled in the kubescape-operator capabilities
+*/ -}}
+{{- $compEnabled := .enabled }}
+{{- if eq .name "clamav" }}{{ $compEnabled = and $compEnabled $components.clamAV.enabled }}{{- end }}
+{{- if eq .name "grype-offline-db" }}{{ $compEnabled = and $compEnabled (and $operatorValues.grypeOfflineDB.enabled (eq $operatorValues.grypeOfflineDB.image.tag "latest")) }}{{- end }}
+{{- if eq .name "host-scanner" }}{{ $compEnabled = and $compEnabled $components.hostScanner.enabled }}{{- end }}
+{{- if eq .name "kubescape" }}{{ $compEnabled = and $compEnabled $components.kubescape.enabled }}{{- end }}
+{{- if eq .name "kubescape-scheduler" }}{{ $compEnabled = and $compEnabled $components.kubescapeScheduler.enabled }}{{- end }}
+{{- if eq .name "kubevuln" }}{{ $compEnabled = and $compEnabled $components.kubevuln.enabled }}{{- end }}
+{{- if eq .name "kubevuln-scheduler" }}{{ $compEnabled = and $compEnabled $components.kubevulnScheduler.enabled }}{{- end }}
+{{- if eq .name "node-agent" }}{{ $compEnabled = and $compEnabled $components.nodeAgent.enabled }}{{- end }}
+{{- if eq .name "operator" }}{{ $compEnabled = and $compEnabled $components.operator.enabled }}{{- end }}
+{{- if eq .name "otel-collector" }}{{ $compEnabled = and $compEnabled $components.otelCollector.enabled }}{{- end }}
+{{- if eq .name "prometheus-exporter" }}{{ $compEnabled = and $compEnabled $components.prometheusExporter.enabled }}{{- end }}
+{{- if eq .name "storage" }}{{ $compEnabled = and $compEnabled $components.storage.enabled }}{{- end }}
+{{- if eq .name "synchronizer" }}{{ $compEnabled = and $compEnabled $components.synchronizer.enabled }}{{- end }}
+{{- if $compEnabled }}
 ---
 apiVersion: monitoring.grafana.com/v1alpha2
 kind: PodLogs
