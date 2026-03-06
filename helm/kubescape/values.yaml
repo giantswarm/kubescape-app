@@ -8,6 +8,9 @@ image:
   name: ""
   tag: ""
 
+podLogs:
+  enabled: true
+
 kubescape-operator:
   capabilities:
     operator: enable

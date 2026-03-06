@@ -1,0 +1,18 @@
+{{- if and .Values.podLogs.enabled (.Capabilities.APIVersions.Has "monitoring.grafana.com/v1alpha2/PodLogs") }}
+apiVersion: monitoring.grafana.com/v1alpha2
+kind: PodLogs
+metadata:
+  name: {{ include "name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "labels.common" . | nindent 4 }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: {{ .Release.Name | quote }}
+  pipelineStages:
+    - cri: {}
+{{- end }}
