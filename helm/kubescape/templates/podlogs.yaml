@@ -52,7 +52,11 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/instance: {{ $.Release.Name | quote }}
+      {{- if .matchLabels }}
       {{- toYaml .matchLabels | nindent 6 }}
+      {{- else }}
+      app.kubernetes.io/component: {{ .name }}
+      {{- end }}
   pipelineStages:
     - cri: {}
 {{- end }}

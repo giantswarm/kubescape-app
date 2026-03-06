@@ -99,73 +99,25 @@ podLogs:
   components:
     - name: grype-offline-db
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: grype-offline-db
     - name: host-scanner
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: host-scanner
     - name: kubescape
       enabled: true
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: kubescape
     - name: kubescape-scheduler
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: kubescape-scheduler
     - name: kubevuln
       enabled: true
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: kubevuln
     - name: kubevuln-scheduler
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: kubevuln-scheduler
     - name: node-agent
       enabled: true
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: node-agent
     - name: operator
       enabled: true
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: operator
     - name: otel-collector
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: otel-collector
     - name: prometheus-exporter
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: prometheus-exporter
     - name: storage
       enabled: true
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: storage
     - name: synchronizer
       enabled: false
-      labels: {}
-      annotations: {}
-      matchLabels:
-        app.kubernetes.io/component: synchronizer
