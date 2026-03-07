@@ -5,8 +5,8 @@
 {{- range .Values.podLogs.components }}
 {{- /* 
   A component's PodLog resource is only rendered if both:
-  1. It is enabled in the values.yaml podLogs list (.enabled)
-  2. The actual component is enabled in the kubescape-operator capabilities
+  1. PodLogs for the component are enabled in the values.yaml podLogs list (.enabled)
+  2. The component itself is enabled in the kubescape-operator capabilities
 */ -}}
 {{- $compEnabled := .enabled }}
 {{- if eq .name "grype-offline-db" }}{{ $compEnabled = and $compEnabled (and $operatorValues.grypeOfflineDB.enabled (eq $operatorValues.grypeOfflineDB.image.tag "latest")) }}{{- end }}
