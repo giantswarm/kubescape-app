@@ -9,6 +9,9 @@ image:
   tag: ""
 
 kubescape-operator:
+  additionalLabels:
+    application.giantswarm.io/team: shield
+
   capabilities:
     operator: enable
     configurationScan: enable
@@ -76,8 +79,6 @@ kubescape-operator:
       prometheusExporter: enable
     serviceMonitor:
       enabled: true
-      additionalLabels:
-        application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
   prometheusExporter:
@@ -91,3 +92,38 @@ kubescape-operator:
     configMapUpdate:
       image:
         repository: "gsoci.azurecr.io/giantswarm/kubectl"
+
+podLogs:
+  enabled: true
+  tenant: giantswarm
+  commonLabels: {}
+  commonAnnotations: {}
+  components:
+    - name: grype-offline-db
+      enabled: true
+      # annotations: {}
+      # labels: {}
+      # relabelings: {}
+      # tenant: ""
+    - name: host-scanner
+      enabled: false
+    - name: kubescape
+      enabled: false
+    - name: kubescape-scheduler
+      enabled: true
+    - name: kubevuln
+      enabled: true
+    - name: kubevuln-scheduler
+      enabled: true
+    - name: node-agent
+      enabled: true
+    - name: operator
+      enabled: true
+    - name: otel-collector
+      enabled: true
+    - name: prometheus-exporter
+      enabled: true
+    - name: storage
+      enabled: true
+    - name: synchronizer
+      enabled: true
