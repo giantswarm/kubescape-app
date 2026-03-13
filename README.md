@@ -1,67 +1,15 @@
-[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/{APP-NAME}/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/{APP-NAME}/tree/main)
-
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/giantswarm/openssf-scorecard-exporter/tree/main.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/giantswarm/kubescape-app/tree/main)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/giantswarm/openssf-scorecard-exporter/badge)](https://securityscorecards.dev/viewer/?uri=github.com/giantswarm/kubescape-app)
 [Guide about how to manage an app on Giant Swarm](https://handbook.giantswarm.io/docs/dev-and-releng/app-developer-processes/adding_app_to_appcatalog/)
 
-# {APP-NAME} chart
+# kubescape-app
 
-Giant Swarm offers a {APP-NAME} App which can be installed in workload clusters.
-Here, we define the {APP-NAME} chart with its templates and default configuration.
+[Kubescape](https://github.com/kubescape/kubescape) is an open-source security scanning tool for Kubernetes and the devops ecosystem. This repository contains a Helm chart for Kubescape, packaged as used by Giant Swarm.
 
-**What is this app?**
+Kubescape scans Kubernetes clusters for vulnerabilities, dangerous misconfigurations, and other risks, and generates reports and remediation recommendations.
 
-**Why did we add it?**
-
-**Who can use it?**
-
-## Installing
-
-There are several ways to install this app onto a workload cluster.
-
-- [Using GitOps to instantiate the App](https://docs.giantswarm.io/tutorials/continuous-deployment/apps/add-appcr/)
-- By creating an [App resource](https://docs.giantswarm.io/reference/platform-api/crd/apps.application.giantswarm.io) using the platform API as explained in [Getting started with App Platform](https://docs.giantswarm.io/tutorials/fleet-management/app-platform/).
-
-## Configuring
-
-### values.yaml
-
-**This is an example of a values file you could upload using our web interface.**
-
-```yaml
-# values.yaml
-
-```
-
-### Sample App CR and ConfigMap for the management cluster
-
-If you have access to the Kubernetes API on the management cluster, you could create the App CR and ConfigMap directly.
-
-Here is an example that would install the app to workload cluster `abc12`:
-
-```yaml
-# appCR.yaml
-
-```
-
-```yaml
-# user-values-configmap.yaml
-
-```
-
-See our [full reference on how to configure apps](https://docs.giantswarm.io/tutorials/fleet-management/app-platform/app-configuration/) for more details.
-
-## Compatibility
-
-This app has been tested to work with the following workload cluster release versions:
-
-- _add release version_
-
-## Limitations
-
-Some apps have restrictions on how they can be deployed.
-Not following these limitations will most likely result in a broken deployment.
-
-- _add limitation_
+Giant Swarm's [starboard-exporter](https://github.com/giantswarm/starboard-exporter) can be used to expose additional metrics for Kubescape's native report data.
 
 ## Credit
 
-- {APP HELM REPOSITORY}
+- https://github.com/kubescape/kubescape
