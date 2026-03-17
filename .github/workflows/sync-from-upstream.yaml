@@ -68,7 +68,7 @@ jobs:
           new_values=$(docker run --rm \
             -v ${{ github.workspace }}:/github/workspace \
             gsoci.azurecr.io/giantswarm/shield-values-sync:0.0.3 \
-            --add-new --dry-run \
+            --add-new --dry-run --depth 2 \
             --chart-dir /github/workspace/${{ env.CHART_DIR }} \
             --config /github/workspace/values-sync-ignore.yaml || true)
           echo "${new_values}"
@@ -181,7 +181,7 @@ jobs:
             body+="$(printf '### Changes\n\n%s\n' "${ENTRIES}")"
           fi
           if [[ -n "${NEW_VALUES}" ]]; then
-            body+="$(printf '### New values\n\n```yaml\n%s\n```\n' "${NEW_VALUES}")"
+            body+="$(printf '\n### New values\n\n```yaml\n%s\n```\n' "${NEW_VALUES}")"
           fi
           gh pr edit '${{ env.UPDATE_BRANCH }}' \
             --repo ${{ github.repository }} \
