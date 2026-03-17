@@ -6,7 +6,8 @@
   "packageRules": [
     {
       "matchFileNames": ["vendir.yml"],
-      "branchName": "main#update-branch",
+      "branchPrefix": "main#",
+      "branchTopic": "update-branch",
     },
   ],
 }
