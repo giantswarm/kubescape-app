@@ -16,8 +16,7 @@
   "packageRules": [
     {
       "matchFileNames": ["vendir.yml"],
-      "branchPrefix": "main#",
-      "branchTopic": "update-chart",
+      "branchPrefix": "renovate/",
       "prCreation": "approval",
     },
   ],
