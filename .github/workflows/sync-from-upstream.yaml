@@ -72,26 +72,34 @@ jobs:
       - name: Detect dependency version changes
         id: detect
         run: |
-          set -euo pipefail
+          set -euxo pipefail
 
           CHART_YAML="${{ env.CHART_DIR }}/Chart.yaml"
+          echo "--- Chart.yaml ---"
+          cat "${CHART_YAML}"
+          echo "--- end Chart.yaml ---"
+
           deps=$(awk '
             /^dependencies:/ { in_deps=1; next }
             in_deps && /^[^[:space:]]/ { in_deps=0 }
             in_deps && /name:/ { print $NF }
           ' "${CHART_YAML}")
+          echo "Detected dependencies: $(echo "${deps}" | tr '\n' ' ')"
 
           entries_file=$(mktemp)
           while IFS= read -r dep; do
+            echo "Processing dep: '${dep}'"
             subchart="${{ env.CHART_DIR }}/charts/${dep}/Chart.yaml"
             if [[ ! -f "${subchart}" ]]; then
               echo "warning: ${subchart} not found, skipping ${dep}" >&2
+              echo "Available charts: $(ls ${{ env.CHART_DIR }}/charts/ 2>/dev/null || echo 'none')" >&2
               continue
             fi
 
-            new_version=$(grep -E "^appVersion:" "${subchart}" | awk '{print $NF}')
+            new_version=$(grep -E "^appVersion:" "${subchart}" | awk '{print $NF}' || true)
             old_version=$(git show origin/main:"${subchart}" 2>/dev/null \
               | grep -E "^appVersion:" | awk '{print $NF}' || true)
+            echo "  new_version='${new_version}' old_version='${old_version}'"
 
             if [[ "${old_version}" == "${new_version}" ]]; then
               echo "No version change for ${dep} (${new_version}), skipping"
