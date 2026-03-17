@@ -1,0 +1,19 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #800 from kubescape/bump...'
+      sha: a1eab50ef0817bc0220e782eab380f9fbd8a87a6
+      tags:
+      - kubescape-operator-1.30.5
+    path: .
+  path: helm/kubescape/charts/kubescape-operator
+- contents:
+  - git:
+      commitTitle: 'Merge pull request #800 from kubescape/bump...'
+      sha: a1eab50ef0817bc0220e782eab380f9fbd8a87a6
+      tags:
+      - kubescape-operator-1.30.5
+    path: .
+  path: helm/kubescape/charts/dependency_chart
+kind: LockConfig
