@@ -47,6 +47,7 @@ jobs:
     needs: call-update-chart
     outputs:
       entries: ${{ steps.changelogger.outputs.entries }}
+      new_values: ${{ steps.values_sync_dry_run.outputs.new_values }}
     steps:
       - name: Generate token
         id: generate_token
@@ -61,10 +62,28 @@ jobs:
           token: ${{ steps.generate_token.outputs.token }}
       - name: Fetch main branch for version comparison
         run: git fetch origin main
+      - name: Run values-sync dry-run
+        id: values_sync_dry_run
+        run: |
+          new_values=$(docker run --rm \
+            -v ${{ github.workspace }}:/github/workspace \
+            gsoci.azurecr.io/giantswarm/shield-values-sync:0.0.3 \
+            --add-new --dry-run \
+            --chart-dir /github/workspace/${{ env.CHART_DIR }} \
+            --config /github/workspace/values-sync-ignore.yaml || true)
+          echo "${new_values}"
+          if [[ -n "${new_values}" ]]; then
+            delimiter=$(openssl rand -hex 16)
+            {
+              echo "new_values<<${delimiter}"
+              printf '%s' "${new_values}"
+              echo "${delimiter}"
+            } >> "$GITHUB_OUTPUT"
+          fi
       - name: Run values-sync
         uses: docker://gsoci.azurecr.io/giantswarm/shield-values-sync:0.0.3
         with:
-          args: --chart-dir /github/workspace/${{ env.CHART_DIR }}
+          args: --chart-dir /github/workspace/${{ env.CHART_DIR }} --config /github/workspace/values-sync-ignore.yaml
       - name: Run schema-gen
         uses: docker://gsoci.azurecr.io/giantswarm/shield-schema-gen:0.0.3
         with:
@@ -143,7 +162,7 @@ jobs:
   update-pr-description:
     runs-on: ubuntu-latest
     needs: sync-and-update
-    if: needs.sync-and-update.outputs.entries != ''
+    if: needs.sync-and-update.outputs.entries != '' || needs.sync-and-update.outputs.new_values != ''
     steps:
       - name: Generate token
         id: generate_token
@@ -155,7 +174,15 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
           ENTRIES: ${{ needs.sync-and-update.outputs.entries }}
+          NEW_VALUES: ${{ needs.sync-and-update.outputs.new_values }}
         run: |
+          body=""
+          if [[ -n "${ENTRIES}" ]]; then
+            body+="$(printf '### Changes\n\n%s\n' "${ENTRIES}")"
+          fi
+          if [[ -n "${NEW_VALUES}" ]]; then
+            body+="$(printf '### New values\n\n```yaml\n%s\n```\n' "${NEW_VALUES}")"
+          fi
           gh pr edit '${{ env.UPDATE_BRANCH }}' \
             --repo ${{ github.repository }} \
-            --body "$(printf '### Changes\n\n%s' "${ENTRIES}")"
+            --body "${body}"
