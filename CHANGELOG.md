@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Push to the `default` catalog.
 - Add PodLogs resources for collecting kubescape pod logs.
 
+### Changed
+
+- Updated `kubescape-operator` to upstream version `v1.30.5`.
+
 ## [0.0.6] - 2026-02-10
 
 ### Added
