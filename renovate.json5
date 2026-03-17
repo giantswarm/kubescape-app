@@ -17,7 +17,7 @@
     {
       "matchFileNames": ["vendir.yml"],
       "branchPrefix": "main#",
-      "branchTopic": "update-branch",
+      "branchTopic": "update-chart",
     },
   ],
 }
