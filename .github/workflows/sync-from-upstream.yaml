@@ -72,7 +72,7 @@ jobs:
       - name: Detect dependency version changes
         id: detect
         run: |
-          set -euo pipefail
+          set -euxo pipefail
 
           CHART_YAML="${{ env.CHART_DIR }}/Chart.yaml"
           deps=$(awk '
@@ -89,7 +89,7 @@ jobs:
               continue
             fi
 
-            new_version=$(grep -E "^appVersion:" "${subchart}" | awk '{print $NF}')
+            new_version=$(grep -E "^appVersion:" "${subchart}" | awk '{print $NF}' || true)
             old_version=$(git show origin/main:"${subchart}" 2>/dev/null \
               | grep -E "^appVersion:" | awk '{print $NF}' || true)
 
