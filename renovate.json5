@@ -3,6 +3,16 @@
     // Base config - https://github.com/giantswarm/renovate-presets/blob/main/default.json5
     "github>giantswarm/renovate-presets:default.json5",
   ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["(^|/)vendir\\.yml$"],
+      "matchStrings": ["ref: (?<currentValue>kubescape-operator-[\\d.]+)"],
+      "depNameTemplate": "kubescape/helm-charts",
+      "datasourceTemplate": "github-tags",
+      "versioningTemplate": "regex:^kubescape-operator-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$",
+    },
+  ],
   "packageRules": [
     {
       "matchFileNames": ["vendir.yml"],
