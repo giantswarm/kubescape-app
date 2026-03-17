@@ -76,7 +76,7 @@ jobs:
             delimiter=$(openssl rand -hex 16)
             {
               echo "new_values<<${delimiter}"
-              printf '%s' "${new_values}"
+              printf '%s\n' "${new_values}"
               echo "${delimiter}"
             } >> "$GITHUB_OUTPUT"
           fi
