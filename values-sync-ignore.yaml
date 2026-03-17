@@ -1,0 +1,4 @@
+exclude:
+  - "exceptions.enabled"
+  - "**.additionalLabels.**"
+  - "kubescape-operator.storage.forceVirtualCrds"
