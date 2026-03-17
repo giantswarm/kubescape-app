@@ -154,7 +154,8 @@ jobs:
       - name: Update PR description
         env:
           GITHUB_TOKEN: ${{ steps.generate_token.outputs.token }}
+          ENTRIES: ${{ needs.sync-and-update.outputs.entries }}
         run: |
           gh pr edit '${{ env.UPDATE_BRANCH }}' \
             --repo ${{ github.repository }} \
-            --body "$(printf '### Changes\n\n%s' "${{ needs.sync-and-update.outputs.entries }}")"
+            --body "$(printf '### Changes\n\n%s' "${ENTRIES}")"
