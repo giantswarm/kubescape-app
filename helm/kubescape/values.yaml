@@ -1,7 +1,6 @@
 # Values for the kubescape operator app
 
 exceptions:
-  enabled: true
   namespace: policy-exceptions
 
 image:
@@ -10,7 +9,6 @@ image:
 
 kubescape-operator:
   additionalLabels:
-    application.giantswarm.io/team: shield
 
   capabilities:
     operator: enable
@@ -36,7 +34,6 @@ kubescape-operator:
     serviceMonitor:
       enabled: true
       additionalLabels:
-        application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
   operator:
@@ -46,7 +43,6 @@ kubescape-operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
   storage:
-    forceVirtualCrds: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
   hostScanner:
