@@ -16,7 +16,7 @@
   "packageRules": [
     {
       "matchFileNames": ["vendir.yml"],
-      "branchPrefix": "renovate/",
+      "branchPrefix": "renovate/vendir/",
       "prCreation": "approval",
     },
   ],
