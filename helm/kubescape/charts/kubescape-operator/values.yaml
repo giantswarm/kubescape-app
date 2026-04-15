@@ -888,7 +888,7 @@ serviceDiscovery:
     name: url-discovery
     image:
       repository: quay.io/kubescape/http-request
-      tag: v0.2.16
+      tag: v0.2.19
       pullPolicy: IfNotPresent
 
     # Skip SSL certificate verification
@@ -1021,7 +1021,7 @@ kubescapeScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -1068,7 +1068,7 @@ kubevulnScheduler:
   image:
     # source code - https://github.com/kubescape/http-request
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:
@@ -1117,7 +1117,7 @@ registryScanScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:
