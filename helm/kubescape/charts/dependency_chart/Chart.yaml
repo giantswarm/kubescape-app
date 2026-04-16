@@ -1,0 +1,7 @@
+apiVersion: v2
+
+name: dependency_chart
+
+version: 0.0.0
+annotations:
+  application.giantswarm.io/team: shield

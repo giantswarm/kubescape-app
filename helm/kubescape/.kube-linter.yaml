@@ -1,0 +1,7 @@
+checks:
+  ignorePaths:
+    - /**/helm/kubescape/charts/kubescape-operator/**/tests/*
+    - /**/helm/kubescape/charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    - /**/helm/kubescape/charts/kubescape-operator/templates/node-agent/service.yaml
+    - /**/helm/kubescape/charts/kubescape-operator/templates/storage/deployment.yaml
+    - /**/helm/kubescape/charts/kubescape-operator/templates/storage/service.yaml

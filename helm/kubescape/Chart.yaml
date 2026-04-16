@@ -1,0 +1,24 @@
+apiVersion: v2
+# Please make sure your name DOES NOT end in "app" or "-app".
+name: kubescape
+# Please describe what the app provides in a sentence or two.
+description: This chart contains the kubescape operator chart and custom Giant Swarm resources.
+home: https://github.com/giantswarm/kubescape
+# If you have an icon/logo, you should add it to https://github.com/giantswarm/web-assets
+# and set the final URL as a value here and uncomment.
+icon: https://s.giantswarm.io/app-icons/kubescape/1/color.svg
+sources:
+  - https://github.com/kubescape/helm-charts
+version: 0.0.6
+annotations:
+  io.giantswarm.application.audience: all
+  io.giantswarm.application.managed: "true"
+  io.giantswarm.application.team: shield
+dependencies:
+  - name: exceptions
+    version: 0.0.0
+    condition: exceptions.enabled
+  - name: dependency_chart
+    version: 0.0.0
+  - name: kubescape-operator
+    version: ">1.28.0"
