@@ -3,6 +3,9 @@
     'github>giantswarm/renovate-presets:default.json5',
     'github>giantswarm/renovate-presets:disable-vendir.json5',
   ],
+  ignorePaths: [
+    'helm/*/charts/**',
+  ],
   customManagers: [
     {
       customType: 'regex',
