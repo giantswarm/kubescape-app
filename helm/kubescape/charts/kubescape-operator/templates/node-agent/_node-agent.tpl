@@ -33,16 +33,23 @@ Parameters:
   - testingMode: boolean - for MULTIPLY env var
 */}}
 {{- define "node-agent.env" -}}
+{{- if .autoscalerMode }}
 - name: GOMEMLIMIT
-  valueFrom:
-    resourceFieldRef:
-      resource: limits.memory
-      divisor: '1'
-- name: GOMAXPROCS
-  valueFrom:
-    resourceFieldRef:
-      resource: limits.cpu
-      divisor: '1'
+  value: "{{`{{ .GoMemLimit }}`}}"
+{{- else }}
+{{- $memory := .Values.nodeAgent.resources.limits.memory -}}
+{{- if .resources -}}
+{{- if .resources.limits -}}
+{{- if .resources.limits.memory -}}
+{{- $memory = .resources.limits.memory -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- if $memory }}
+- name: GOMEMLIMIT
+  value: {{ include "kubescape-operator.gomemlimit" (dict "memory" $memory "percentage" .Values.nodeAgent.gomemlimitPercentage) | quote }}
+{{- end }}
+{{- end }}
 - name: HOST_ROOT
   value: "/host"
 - name: KS_LOGGER_LEVEL
@@ -60,6 +67,12 @@ Parameters:
 {{- if and .components.clamAV.enabled (not .autoscalerMode) }}
 - name: CLAMAV_SOCKET
   value: "/clamav/clamd.sock"
+{{- end }}
+{{- if .components.sbomScanner.enabled }}
+- name: SBOM_SCANNER_SOCKET
+  value: "/sbom-comm/scanner.sock"
+- name: SCANNER_MEMORY_LIMIT
+  value: "{{ .Values.nodeAgent.sbomScanner.resources.limits.memory }}"
 {{- end }}
 {{- if ne .Values.global.overrideRuntimePath "" }}
 - name: RUNTIME_PATH
@@ -99,6 +112,10 @@ Parameters:
 {{- end }}
 - name: AGENT_VERSION
   value: "{{ .Values.nodeAgent.image.tag }}"
+{{- if .Values.server }}
+- name: API_URL
+  value: "https://{{ .Values.server }}"
+{{- end }}
 {{- range .Values.nodeAgent.env }}
 {{- if .autoscalerMode }}
 - {{ toYaml . | nindent 2 | trim }}
@@ -128,6 +145,10 @@ Parameters:
 {{- if .Values.nodeAgent.volumeMounts }}
 {{ toYaml .Values.nodeAgent.volumeMounts | trim }}
 {{- end }}
+{{- if .components.sbomScanner.enabled }}
+- name: sbom-comm
+  mountPath: /sbom-comm
+{{- end }}
 - name: {{ .components.cloudSecret.name }}
   mountPath: /etc/credentials
   readOnly: true
@@ -135,12 +156,6 @@ Parameters:
   mountPath: /etc/config/clusterData.json
   readOnly: true
   subPath: "clusterData.json"
-{{- if .components.serviceDiscovery.enabled }}
-- name: "services"
-  mountPath: /etc/config/services.json
-  readOnly: true
-  subPath: "services.json"
-{{- end }}
 - name: config
   mountPath: /etc/config/config.json
   readOnly: true
@@ -186,18 +201,23 @@ Parameters:
     httpGet:
       path: /livez
       port: 7888
-    initialDelaySeconds: 60
     periodSeconds: 3
   readinessProbe:
     httpGet:
       path: /readyz
       port: 7888
-    initialDelaySeconds: 3
     periodSeconds: 3
+  startupProbe:
+    httpGet:
+      path: /readyz
+      port: 7888
+    periodSeconds: 10
+    failureThreshold: 30
+    timeoutSeconds: 1
   resources:
     {{- include "node-agent.resources" (dict "autoscalerMode" .autoscalerMode "resources" .resources) | nindent 4 }}
   env:
-    {{- include "node-agent.env" (dict "Values" .Values "components" .components "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode) | nindent 4 }}
+    {{- include "node-agent.env" (dict "Values" .Values "components" .components "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode "resources" .resources) | nindent 4 }}
   securityContext:
     runAsUser: 0
     privileged: {{ .Values.nodeAgent.privileged }}
@@ -242,6 +262,43 @@ Parameters:
 {{- end -}}
 
 {{/*
+SBOM Scanner Sidecar Container (optional)
+Parameters:
+  - Values: .Values
+  - components: $components
+*/}}
+{{- define "node-agent.sbomScannerContainer" -}}
+{{- if .components.sbomScanner.enabled }}
+- name: {{ .Values.nodeAgent.sbomScanner.name }}
+  image: "{{ .Values.nodeAgent.sbomScanner.image.repository }}:{{ .Values.nodeAgent.sbomScanner.image.tag | default .Values.nodeAgent.image.tag }}"
+  imagePullPolicy: {{ .Values.nodeAgent.sbomScanner.image.pullPolicy }}
+  {{- if .Values.nodeAgent.sbomScanner.command }}
+  command: {{ toYaml .Values.nodeAgent.sbomScanner.command | nindent 4 }}
+  {{- end }}
+  securityContext:
+    runAsUser: 0
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: ["ALL"]
+  resources:
+{{ toYaml .Values.nodeAgent.sbomScanner.resources | indent 4 }}
+  env:
+    {{- if .Values.nodeAgent.sbomScanner.resources.limits.memory }}
+    - name: GOMEMLIMIT
+      value: {{ include "kubescape-operator.gomemlimit" (dict "memory" .Values.nodeAgent.sbomScanner.resources.limits.memory "percentage" .Values.nodeAgent.gomemlimitPercentage) | quote }}
+    {{- end }}
+    - name: SOCKET_PATH
+      value: "/sbom-comm/scanner.sock"
+    - name: HOST_ROOT
+      value: "/host"
+  {{- if .Values.nodeAgent.sbomScanner.volumeMounts }}
+  volumeMounts:
+    {{- toYaml .Values.nodeAgent.sbomScanner.volumeMounts | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end -}}
+
+{{/*
 Node Agent Init Containers
 Parameters:
   - Values: .Values
@@ -251,7 +308,7 @@ Parameters:
 {{- define "node-agent.initContainers" -}}
 {{- if .Values.nodeAgent.startupJitterContainer.enabled }}
 - name: startup-jitter
-  image: "busybox:latest"
+  image: {{ .Values.nodeAgent.startupJitterContainer.image.repository | default "busybox" }}:{{ .Values.nodeAgent.startupJitterContainer.image.tag | default "latest" }}
   command:
   - /bin/sh
   - -c
@@ -260,40 +317,6 @@ Parameters:
     echo "Pod $(hostname) will sleep for $SLEEP_TIME seconds"
     sleep $SLEEP_TIME
     echo "Pod $(hostname) finished sleeping after $SLEEP_TIME seconds"
-{{- end }}
-{{- if .components.serviceDiscovery.enabled }}
-- name: {{ .Values.serviceDiscovery.urlDiscovery.name }}
-  image: "{{ .Values.serviceDiscovery.urlDiscovery.image.repository }}:{{ .Values.serviceDiscovery.urlDiscovery.image.tag }}"
-  imagePullPolicy: {{ .Values.serviceDiscovery.urlDiscovery.image.pullPolicy }}
-  securityContext:
-    allowPrivilegeEscalation: false
-    readOnlyRootFilesystem: true
-  resources:
-{{ toYaml .Values.serviceDiscovery.resources | indent 4 }}
-  env:
-{{- if ne .Values.global.httpsProxy "" }}
-    - name: HTTPS_PROXY
-      value: "{{ .Values.global.httpsProxy }}"
-    - name: no_proxy
-      value: "{{ .no_proxy_envar_list }}"
-{{- end }}
-  args:
-    - -method=get
-    - -scheme=https
-    - -host={{ .Values.server }}
-    - -path=api/v3/servicediscovery
-    - -path-output=/data/services.json
-{{- if .Values.serviceDiscovery.urlDiscovery.insecureSkipTLSVerify }}
-    - -skip-ssl-verify=true
-{{- end }}
-  volumeMounts:
-    - name: services
-      mountPath: /data
-{{- if ne .Values.global.proxySecretFile "" }}
-    - name: proxy-secret
-      mountPath: /etc/ssl/certs/proxy.crt
-      subPath: proxy.crt
-{{- end }}
 {{- end }}
 {{- end -}}
 
@@ -313,6 +336,11 @@ Parameters:
 {{- if .Values.clamav.volumes }}
 {{ toYaml .Values.clamav.volumes | trim }}
 {{- end }}
+{{- if .components.sbomScanner.enabled }}
+{{- if .Values.nodeAgent.sbomScanner.volumes }}
+{{ toYaml .Values.nodeAgent.sbomScanner.volumes | trim }}
+{{- end }}
+{{- end }}
 - name: {{ .components.cloudSecret.name }}
   secret:
     secretName: {{ .components.cloudSecret.name }}
@@ -328,10 +356,6 @@ Parameters:
     items:
       - key: "config.json"
         path: "config.json"
-{{- if .components.serviceDiscovery.enabled }}
-- name: "services"
-  emptyDir: {}
-{{- end }}
 {{- if ne .Values.global.proxySecretFile "" }}
 - name: proxy-secret
   secret:
@@ -369,7 +393,7 @@ checksum/cloud-config: {{ .checksums.cloudConfig }}
 {{- if ne .Values.global.proxySecretFile "" }}
 checksum/proxy-config: {{ .checksums.proxySecret }}
 {{- end }}
-{{- if lt (.Capabilities.KubeVersion.Minor | int) 29 }}
+{{- if lt (.Capabilities.KubeVersion.Minor | int) 30 }}
 container.apparmor.security.beta.kubernetes.io/{{ .Values.nodeAgent.name }}: unconfined
 {{- end }}
 {{- if eq .Values.configurations.prometheusAnnotations "enable" }}
@@ -421,10 +445,11 @@ Parameters:
   - resources: resources object (when autoscalerMode is false)
   - nodeSelector: optional custom nodeSelector
   - includeClamAV: boolean - whether to include ClamAV container
+  - includeSbomScanner: boolean - whether to include SBOM scanner sidecar container
 */}}
 {{- define "node-agent.podSpec" -}}
 securityContext:
-  {{- if ge (.Capabilities.KubeVersion.Minor | int) 29 }}
+  {{- if ge (.Capabilities.KubeVersion.Minor | int) 30 }}
   appArmorProfile:
     type: Unconfined
   {{- end }}
@@ -438,8 +463,12 @@ imagePullSecrets:
 {{- end }}
 {{- end }}
 {{- end }}
-{{- if .Values.configurations.priorityClass.enabled }}
+{{- if .Values.nodeAgent.priorityClassName }}
+priorityClassName: {{ .Values.nodeAgent.priorityClassName }}
+{{- else if .Values.configurations.priorityClass.enabled }}
 priorityClassName: kubescape-critical
+{{- else if .Values.customScheduling.priorityClassName }}
+priorityClassName: {{ .Values.customScheduling.priorityClassName }}
 {{- end }}
 serviceAccountName: {{ .Values.nodeAgent.name }}
 automountServiceAccountToken: true
@@ -454,6 +483,9 @@ volumes:
 containers:
 {{- if .includeClamAV }}
 {{ include "node-agent.clamavContainer" (dict "Values" .Values "components" .components) | trim | nindent 0 }}
+{{- end }}
+{{- if .includeSbomScanner }}
+{{ include "node-agent.sbomScannerContainer" (dict "Values" .Values "components" .components) | trim | nindent 0 }}
 {{- end }}
 {{ include "node-agent.container" (dict "Values" .Values "components" .components "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode "resources" .resources) | trim | nindent 0 }}
 nodeSelector:
@@ -501,6 +533,6 @@ template:
     labels:
       {{- include "node-agent.podLabels" (dict "Chart" .Chart "Release" .Release "Values" .Values "components" .components "autoscalerMode" .autoscalerMode) | nindent 6 }}
   spec:
-    {{- include "node-agent.podSpec" (dict "Values" .Values "Chart" .Chart "Release" .Release "Capabilities" .Capabilities "components" .components "checksums" .checksums "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode "resources" .resources "nodeSelector" .nodeSelector "includeClamAV" .includeClamAV) | nindent 4 }}
+    {{- include "node-agent.podSpec" (dict "Values" .Values "Chart" .Chart "Release" .Release "Capabilities" .Capabilities "components" .components "checksums" .checksums "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode "resources" .resources "nodeSelector" .nodeSelector "includeClamAV" .includeClamAV "includeSbomScanner" .includeSbomScanner) | nindent 4 }}
 {{- end -}}
 

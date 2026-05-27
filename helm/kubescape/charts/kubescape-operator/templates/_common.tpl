@@ -7,13 +7,14 @@
 capabilitiesConfig: {{ include (printf "%s/%s/%s" $.Template.BasePath $.Values.global.configMapsDirectory "components-configmap.yaml") . | replace .Chart.AppVersion "" | sha256sum }}
 cloudConfig: {{ include (printf "%s/%s/%s" $.Template.BasePath $.Values.global.configMapsDirectory "cloudapi-configmap.yaml") . | replace .Chart.AppVersion "" | sha256sum }}
 cloudSecret: {{ include (printf "%s/%s/%s" $.Template.BasePath $.Values.global.configMapsDirectory "cloud-secret.yaml" ) . | replace .Chart.AppVersion "" | sha256sum }}
-hostScannerConfig: {{ include (printf "%s/kubescape/host-scanner-definition-configmap.yaml" $.Template.BasePath ) . | replace .Chart.AppVersion "" | sha256sum }}
 matchingRulesConfig: {{ include (printf "%s/%s/%s" $.Template.BasePath $.Values.global.configMapsDirectory "matchingRules-configmap.yaml") . | replace .Chart.AppVersion "" | sha256sum }}
 nodeAgentConfig: {{ include (printf "%s/node-agent/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
 operatorConfig: {{ include (printf "%s/operator/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
 otelConfig: {{ include (printf "%s/otel-collector/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
 proxySecret: {{ include (printf "%s/%s/%s" $.Template.BasePath $.Values.global.proxySecretDirectory "proxy-secret.yaml") . | replace .Chart.AppVersion "" | sha256sum }}
 synchronizerConfig: {{ include (printf "%s/synchronizer/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
+admissionCertgenScripts: {{ include (printf "%s/operator/admission-webhook/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
+storageCertgenScripts: {{ include (printf "%s/storage/certgen/configmap.yaml" $.Template.BasePath) . | replace .Chart.AppVersion "" | sha256sum }}
 {{- end -}}
 
 
@@ -50,8 +51,6 @@ submit: {{ $submit }}
 {{- $nodeScanEnabled := and (eq .Values.capabilities.nodeScan "enable") (not $configurations.backendStorageEnabled) }}
 {{- $configurationScanEnabled := and (eq .Values.capabilities.configurationScan "enable") (not $configurations.backendStorageEnabled) }}
 {{- $vulnerabilityScanEnabled := and (eq .Values.capabilities.vulnerabilityScan "enable") (not $configurations.backendStorageEnabled) }}
-hostScanner:
-  enabled: {{ $nodeScanEnabled }}
 kubescape:
   enabled: {{ $configurationScanEnabled }}
 kubescapeScheduler:
@@ -87,24 +86,22 @@ synchronizer:
   enabled: {{ $configurations.submit }}
 clamAV:
   enabled: {{ eq .Values.capabilities.malwareDetection "enable" }}
+sbomScanner:
+  enabled: {{ and (eq .Values.capabilities.nodeSbomGeneration "enable") .Values.nodeAgent.sbomScanner.enabled }}
 customCaCertificates:
   name: custom-ca-certificates
 autoUpdater:
   enabled: {{ eq .Values.capabilities.autoUpgrading "enable" }}
 {{- end -}}
 
-{{- define "admission-certificates" -}}
-{{- $svcName := (printf "kubescape-admission-webhook.%s.svc" .Values.ksNamespace) -}}
-{{- $ca := dict "Key" "mock-ca-key" "Cert" "mock-ca-cert" -}}
-{{- $cert := dict "Key" "mock-cert-key" "Cert" "mock-cert-cert" -}}
-{{- if not .Values.unittest }}
-  {{- $generatedCA := genCA (printf "*.%s.svc" .Values.ksNamespace) 1024 -}}
-  {{- $generatedCert := genSignedCert $svcName nil (list $svcName) 1024 $generatedCA -}}
-  {{- $_ := set $ca "Key" $generatedCA.Key -}}
-  {{- $_ := set $ca "Cert" $generatedCA.Cert -}}
-  {{- $_ := set $cert "Key" $generatedCert.Key -}}
-  {{- $_ := set $cert "Cert" $generatedCert.Cert -}}
+{{- define "kubescape.certgen.scriptsHash" -}}
+{{- printf "%s%s" (.Files.Get "scripts/certgen-create.sh") (.Files.Get "scripts/certgen-patch.sh") | sha256sum | trunc 8 -}}
+{{- end }}
+
+{{- define "kubescape.certificates.strategy" -}}
+{{- $strategy := default "template" .Values.certificates.strategy -}}
+{{- if not (has $strategy (list "template" "initContainer")) -}}
+{{- fail (printf "certificates.strategy must be one of [template, initContainer], got %q" $strategy) -}}
 {{- end -}}
-{{- $certData := dict "ca" $ca "cert" $cert -}}
-{{- toYaml $certData -}}
-{{- end -}}
+{{- $strategy -}}
+{{- end }}

@@ -22,6 +22,17 @@ ksLabel: kubescape
 additionalAnnotations: {}
 additionalLabels: {}
 
+# Certificate handling for the admission webhook and storage mTLS endpoints.
+# - `template`     : certs rendered at helm install/upgrade time via Sprig `genSignedCert`. Fastest install, but certs rotate on every `helm upgrade` unless the CA Secret is preserved.
+# - `initContainer`: certs generated at runtime by init containers on the consuming pod. GitOps/ArgoCD-safe (no Helm hooks), idempotent across pod restarts, and the CA is reused from a Secret once created.
+certificates:
+  strategy: template
+  certgen:
+    image:
+      repository: quay.io/kubescape/kubectl
+      tag: "1.36.1"
+      pullPolicy: IfNotPresent
+
 # global logger name and level
 # the logger level and name are mapped to environment variables in each component
 logger:
@@ -50,11 +61,14 @@ customScheduling:
     # Define nodeSelector rules here
   tolerations:
     # Set tolerations for nodes here
+  priorityClassName: ""
 
-# -- set the image pull secrets for private registry support
+# -- reference to an exsiting image pull secret for private registry support.
+# -- can be used in conjunction with `imagePullSecret` below to generate a secret with provided credentials
 imagePullSecrets: ""
 
 # -- (optional) generate image pull secret with the provided credentials. Secret name must be provided in the imagePullSecrets field
+# -- must pass in server, username, and password for the secret to be generated
 imagePullSecret:
   server: ""
   username: ""
@@ -119,6 +133,9 @@ capabilities:
   manageWorkloads: disable
   syncSBOM: disable
 
+  # ====== Risk acceptance ======
+  riskAcceptance: disable
+
   # ====== Other capabilities ======
   #
   # This is an experimental capability with an elevated security risk. Read the
@@ -146,7 +163,7 @@ configurations:
 
   priorityClass:
     enabled: true
-    daemonset: 100000100 # PriorityClass of the DaemonSet, this should be higher than the other components so the DaemonSet will schedule on all nodes
+    daemonset: 100000100 # PriorityClass value for the node-agent DaemonSet; higher than other components so it schedules on all nodes. Override the name via nodeAgent.priorityClassName.
 
   # List of json paths to exclude from the pod spec hash computation - used for aggregating CronJob generated CRDs
   excludeJsonPaths:
@@ -264,11 +281,12 @@ kubescape:
   image:
     # -- source code: https://github.com/kubescape/kubescape/tree/master/httphandler (public repo)
     repository: quay.io/kubescape/kubescape
-    tag: v3.0.47
+    tag: v4.0.8
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   podAnnotations: {}
   podLabels: {}
@@ -289,6 +307,7 @@ kubescape:
   service:
     type: ClusterIP
     port: 8080
+    annotations: {}
 
   # deploy a service monitor for prometheus (operator) integration
   serviceMonitor:
@@ -324,17 +343,39 @@ operator:
   image:
     # -- source code: https://github.com/kubescape/operator
     repository: quay.io/kubescape/operator
-    tag: v0.2.121
+    tag: v0.2.142
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   service:
     type: ClusterIP
     port: 4002
     targetPort: 4002
     protocol: TCP
+    annotations: {}
+
+  # DEPRECATED: use operator.admissionWebhooks.service.* instead.
+  # If any key under admissionService is set, it takes precedence over the matching
+  # key under admissionWebhooks.service for backward compatibility.
+  # This block will be removed in a future release.
+  admissionService: {}
+  #   type: ClusterIP
+  #   port: 443
+  #   targetPort: 8443
+  #   annotations: {}
+
+  admissionWebhooks:
+    service:
+      type: ClusterIP
+      port: 443
+      targetPort: 8443
+      annotations: {}
+    patch:
+      retries: 60
+      retryIntervalSeconds: 5
 
   podAnnotations: {}
   podLabels: {}
@@ -369,14 +410,20 @@ kubevuln:
   # kubevuln Deployment name
   name: kubevuln
 
+  # GOMEMLIMIT as a fraction of resources.limits.memory. 0.8 = 80%.
+  # Lower values give the runtime more headroom; raise toward 1.0 only if
+  # GC is not aggressive enough.
+  gomemlimitPercentage: 0.8
+
   image:
     # -- source code: https://github.com/kubescape/kubevuln
     repository: quay.io/kubescape/kubevuln
-    tag: v0.3.98
+    tag: v0.3.142
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   replicaCount: 1
 
@@ -385,6 +432,7 @@ kubevuln:
     port: 8080
     targetPort: 8080
     protocol: TCP
+    annotations: {}
 
   podAnnotations: {}
   podLabels: {}
@@ -426,42 +474,18 @@ kubevuln:
     size: 50Gi
     annotations: {}
 
-# +++++++++++++++++++++++++++++++ Host-scanner ++++++++++++++++++++++++++++++++++++++++++++++++
-
-hostScanner:
-  name: host-scanner
-  image:
-    # -- source code: https://github.com/kubescape/host-scanner (public repo)
-    repository: quay.io/kubescape/host-scanner
-    tag: v1.0.78
-    pullPolicy: IfNotPresent
-
-  nodeSelector:
-    kubernetes.io/os: linux
-
-  # Additional volumes to be mounted on the Kubescape host scanner
-  volumes: []
-
-  # Additional volumeMounts to be mounted on the Kubescape host scanner
-  volumeMounts: []
-
-  tolerations:
-    # this toleration is to have the DaemonDet runnable on master nodes
-    # remove it if your masters can't run pods
-    - key: node-role.kubernetes.io/control-plane
-      operator: Exists
-      effect: NoSchedule
-    - key: node-role.kubernetes.io/master
-      operator: Exists
-      effect: NoSchedule
-
-  resources:
-    limits:
-      cpu: 0.4m
-      memory: 400Mi
-    requests:
-      cpu: 0.1m
-      memory: 200Mi
+  # SBOM scanner sidecar — isolates Syft memory usage in a separate container
+  sbomScanner:
+    enabled: false
+    command:
+      - /usr/bin/sbom-scanner
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        cpu: 1000m
+        memory: 5Gi
 
 # +++++++++++++++++++++++++++++++ Storage ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -472,18 +496,25 @@ storage:
   name: "storage"
   mtls:
     enabled: true
-    certificateValidityInDays: 730
+    certificateValidityInDays: 730 # NOTE: only in effect when certificates.strategy is "template"
+    certgen:
+      retries: 60
+      retryIntervalSeconds: 5
   serverPort: 8443
+  service:
+    type: ClusterIP
+    annotations: {}
 
   # -- source code: https://github.com/kubescape/storage
   image:
     # -- source code: https://github.com/kubescape/storage
     repository: quay.io/kubescape/storage
-    tag: v0.0.237
+    tag: v0.0.274
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   # cleanup interval is a duration string
   cleanupInterval: "6h"
@@ -540,10 +571,14 @@ storage:
 
 nodeAgent:
   name: node-agent
+  # GOMEMLIMIT as a fraction of resources.limits.memory. 0.8 = 80%.
+  # Lower values give the runtime more headroom; raise toward 1.0 only if
+  # GC is not aggressive enough.
+  gomemlimitPercentage: 0.8
   image:
     # -- source code: https://github.com/kubescape/node-agent
     repository: quay.io/kubescape/node-agent
-    tag: v0.3.11
+    tag: v0.3.119
     pullPolicy: IfNotPresent
 
   config:
@@ -569,6 +604,10 @@ nodeAgent:
       ruleCooldownAfterCount: 1
       ruleCooldownOnProfileFailure: true
       ruleCooldownMaxSize: 20000
+    # Host sensor configuration
+    hostSensor:
+      enabled: true
+      interval: 5m # duration string
 
   # GKE Autopilot allowlist
   gke:
@@ -643,7 +682,6 @@ nodeAgent:
     - mountPath: /clamav
       name: clamrun
       # readOnly: false # EmptyDir volume
-
   volumes:
     - hostPath:
         path: /
@@ -676,6 +714,10 @@ nodeAgent:
       name: data
     - emptyDir:
       name: profiles
+    - hostPath:
+        path: /
+        type: Directory
+      name: host-filesystem
 
   affinity:
     nodeAffinity:
@@ -693,6 +735,9 @@ nodeAgent:
   startupJitterContainer:
     enabled: false
     maxStartupJitter: 60
+    image:
+      repository: busybox
+      tag: latest
 
   multipleDaemonSets:
     enabled: false # set to true to enable multiple DaemonSets for the node-agent, with different configurations.
@@ -732,6 +777,42 @@ nodeAgent:
       memory: 4Gi
     # -- interval for reconciliation loop
     reconcileInterval: 5m
+
+  priorityClassName: ""
+
+  # SBOM scanner sidecar — runs Syft in a separate container for memory isolation
+  sbomScanner:
+    enabled: false
+    name: sbom-scanner
+    image:
+      # Same image as node-agent — shared pull, different entrypoint
+      repository: quay.io/kubescape/node-agent
+      tag: ""
+      pullPolicy: IfNotPresent
+    command: ["/usr/bin/sbom-scanner"]
+    resources:
+      requests:
+        cpu: 50m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 4Gi
+    volumeMounts:
+      - mountPath: /sbom-comm
+        name: sbom-comm
+      - mountPath: /host
+        name: host
+        readOnly: true
+      # Syft's Java cataloger needs writable temp space to process JAR archives
+      - mountPath: /tmp
+        name: sbom-scanner-tmp
+    volumes:
+      - name: sbom-comm
+        emptyDir:
+          medium: Memory
+          sizeLimit: 10Mi
+      - name: sbom-scanner-tmp
+        emptyDir: {}
 
 # +++++++++++++++++++++++++++++++ ClamAV ++++++++++++++++++++++++++++++++++++++++++++++++
 clamav:
@@ -794,10 +875,11 @@ synchronizer:
   image:
     # -- source code: https://github.com/kubescape/synchronizer
     repository: quay.io/kubescape/synchronizer
-    tag: v0.0.127
+    tag: v0.0.147
     pullPolicy: IfNotPresent
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
   podAnnotations: {}
   podLabels: {}
   resources:
@@ -812,6 +894,7 @@ synchronizer:
     port: 8089
     targetPort: 8089
     protocol: TCP
+    annotations: {}
 
 # -----------------------------------------------------------------------------------------
 # ------------------------ Microservice - helpers -----------------------------------------
@@ -856,14 +939,20 @@ grypeOfflineDB:
 
   name: grype-offline-db
 
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  # -- Cron schedule for the grype-offline-db rollout CronJob
+  schedule: "5 0 * * *"
+
   image:
     repository: quay.io/kubescape/grype-offline-db
-    tag: "" # use latest for weekly updates, it will overwrite the sha if specified
+    tag: "" # use v6-latest for weekly updates, it will overwrite the sha if specified
     sha: sha256:56468cbe92622770860f5c2f96b43aca836f6466c1c95116a107d461f8de8592
     pullPolicy: Always
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   podAnnotations: {}
   podLabels: {}
@@ -875,44 +964,22 @@ grypeOfflineDB:
       cpu: 150m
       memory: 200Mi
 
-# +++++++++++++++++++++++++++++ Discovery ++++++++++++++++++++++++++++++++++++++++++++++++
-
-# service discovery job for discovering backend server URLs
-serviceDiscovery:
-  name: service-discovery
-
-  metrics: ""
-  services: ""
-
-  urlDiscovery:
-    name: url-discovery
-    image:
-      repository: quay.io/kubescape/http-request
-      tag: v0.2.16
-      pullPolicy: IfNotPresent
-
-    # Skip SSL certificate verification
-    insecureSkipTLSVerify: false
-
-  configMapUpdate:
-    name: update-configmap
+  rollout:
     image:
       repository: quay.io/kubescape/kubectl
-      tag: 1.30.3
+      tag: 1.36.1
       pullPolicy: IfNotPresent
-
-  nodeSelector:
-    kubernetes.io/os: linux
-
-  podAnnotations: {}
-  podLabels: {}
-  resources:
-    requests:
-      cpu: 10m
-      memory: 10Mi
-    limits:
-      cpu: 100m
-      memory: 50Mi
+    nodeSelector:
+      kubernetes.io/os: linux
+    podAnnotations: {}
+    podLabels: {}
+    resources:
+      requests:
+        cpu: 10m
+        memory: 10Mi
+      limits:
+        cpu: 100m
+        memory: 50Mi
 
 # +++++++++++++++++++++++++++++ Prometheus exporter ++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -921,11 +988,12 @@ prometheusExporter:
   name: "prometheus-exporter"
   image:
     repository: quay.io/kubescape/prometheus-exporter
-    tag: v0.2.11
+    tag: v0.2.18
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   podAnnotations: {}
   podLabels: {}
@@ -962,6 +1030,7 @@ helmReleaseUpgrader:
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   # A cron schedule of how often the updating CronJob should run
   schedule: "0 14 * * *"
@@ -1021,11 +1090,12 @@ kubescapeScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   # Skip SSL certificate verification
   insecureSkipTLSVerify: false
@@ -1068,11 +1138,12 @@ kubevulnScheduler:
   image:
     # source code - https://github.com/kubescape/http-request
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:
     kubernetes.io/os: linux
+  priorityClassName: ""
 
   # Skip SSL certificate verification
   insecureSkipTLSVerify: false
@@ -1117,7 +1188,7 @@ registryScanScheduler:
   image:
     # -- source code: https://github.com/kubescape/http-request (public repo)
     repository: quay.io/kubescape/http-request
-    tag: v0.2.16
+    tag: v0.2.19
     pullPolicy: IfNotPresent
 
   nodeSelector:

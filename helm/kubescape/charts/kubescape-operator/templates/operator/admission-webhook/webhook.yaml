@@ -1,29 +1,15 @@
 {{- $components := fromYaml (include "components" .) }}
-{{- if $components.operator.enabled }}
-{{- if eq .Values.capabilities.admissionController "enable" }}
-{{- $svcName := (printf "kubescape-admission-webhook.%s.svc" .Values.ksNamespace) -}}
-{{- $certData := fromYaml (include "admission-certificates" .) -}}
+{{- if and $components.operator.enabled (eq .Values.capabilities.admissionController "enable") }}
+{{- $strategy := include "kubescape.certificates.strategy" . }}
+{{- $certData := fromYaml (include "kubescape-admission.certificateData" .) }}
 {{- $ca := $certData.ca -}}
-{{- $cert := $certData.cert -}}
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: {{ $svcName }}-kubescape-tls-pair
-  namespace: {{ .Values.ksNamespace }}
-  annotations:
-    {{- include "kubescape-operator.annotations" (dict "Values" .Values) | nindent 4 }}
-  labels:
-    {{- include "kubescape-operator.labels" (dict "Chart" .Chart "Release" .Release "Values" .Values "app" .Values.operator.name "tier" .Values.global.namespaceTier) | nindent 4 }}
-type: kubernetes.io/tls
-data:
-  tls.key: {{ $cert.Key | b64enc }}
-  tls.crt: {{ $cert.Cert | b64enc }}
----
+{{- /* operator.admissionService.* is deprecated; coalesce with the new operator.admissionWebhooks.service.* path so legacy overrides win. */ -}}
+{{- $legacy := .Values.operator.admissionService | default dict -}}
+{{- $svc := .Values.operator.admissionWebhooks.service -}}
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
-  name: validation
+  name: {{ include "kubescape-admission.name" . }}
   annotations:
     {{- include "kubescape-operator.annotations" (dict "Values" .Values) | nindent 4 }}
   labels:
@@ -32,11 +18,13 @@ webhooks:
   - name: validation.kubescape.admission
     clientConfig:
       service:
-        name: kubescape-admission-webhook
+        name: {{ include "kubescape-admission.name" . }}
         namespace: {{ .Values.ksNamespace }}
         path: /validate
-        port: 443
+        port: {{ coalesce $legacy.port $svc.port }}
+      {{- if eq $strategy "template" }}
       caBundle: {{ $ca.Cert | b64enc }}
+      {{- end }}
     admissionReviewVersions: ["v1"]
     sideEffects: None
     rules:
@@ -46,5 +34,4 @@ webhooks:
         resources: ["pods", "pods/exec", "pods/portforward", "pods/attach", "clusterrolebindings", "rolebindings"]
         scope: "*"
     failurePolicy: Ignore
-{{- end }}
 {{- end }}

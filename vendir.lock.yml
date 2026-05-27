@@ -1,0 +1,19 @@
+apiVersion: vendir.k14s.io/v1alpha1
+directories:
+- contents:
+  - git:
+      commitTitle: certificate strategy hook -> initContainer (#843)...
+      sha: 03efc004e858e634878cb60d03baddf6872e655b
+      tags:
+      - kubescape-operator-1.40.2
+    path: .
+  path: helm/kubescape/charts/kubescape-operator
+- contents:
+  - git:
+      commitTitle: certificate strategy hook -> initContainer (#843)...
+      sha: 03efc004e858e634878cb60d03baddf6872e655b
+      tags:
+      - kubescape-operator-1.40.2
+    path: .
+  path: helm/kubescape/charts/dependency_chart
+kind: LockConfig
