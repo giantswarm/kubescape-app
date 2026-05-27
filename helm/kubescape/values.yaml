@@ -49,9 +49,6 @@ kubescape-operator:
     forceVirtualCrds: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
-  hostScanner:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-host-scanner"
   clamav:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-klamav"
@@ -85,13 +82,6 @@ kubescape-operator:
     enableWorkloadMetrics: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-prometheus-exporter"
-  serviceDiscovery:
-    urlDiscovery:
-      image:
-        repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
-    configMapUpdate:
-      image:
-        repository: "gsoci.azurecr.io/giantswarm/kubectl"
 
 podLogs:
   enabled: true
