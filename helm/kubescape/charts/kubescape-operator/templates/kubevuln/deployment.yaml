@@ -53,42 +53,6 @@ spec:
           type: RuntimeDefault
         runAsUser: 65532
         fsGroup: 65532
-      {{- if $components.serviceDiscovery.enabled }}
-      initContainers:
-        - name: {{ .Values.serviceDiscovery.urlDiscovery.name }}
-          image: "{{ .Values.serviceDiscovery.urlDiscovery.image.repository }}:{{ .Values.serviceDiscovery.urlDiscovery.image.tag }}"
-          imagePullPolicy: {{ .Values.serviceDiscovery.urlDiscovery.image.pullPolicy }}
-          securityContext:
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-          resources:
-{{ toYaml .Values.serviceDiscovery.resources | indent 14 }}
-          env:
-      {{- if ne .Values.global.httpsProxy "" }}
-            - name: HTTPS_PROXY
-              value: "{{ .Values.global.httpsProxy }}"
-            - name : no_proxy
-              value: "{{ $no_proxy_envar_list }}"
-      {{- end }}
-          args:
-            - -method=get
-            - -scheme=https
-            - -host={{ .Values.server }}
-            - -path=api/v2/servicediscovery
-            - -path-output=/data/services.json
-      {{- if .Values.serviceDiscovery.urlDiscovery.insecureSkipTLSVerify }}
-            - -skip-ssl-verify=true
-      {{- end}}
-          volumeMounts:
-            - name: services
-              mountPath: /data
-      {{- if ne .Values.global.proxySecretFile "" }}
-            - name: proxy-secret
-              mountPath: /etc/ssl/certs/proxy.crt
-              subPath: proxy.crt
-      {{- end }}
-      {{- end }}
       containers:
         - name: {{ .Values.kubevuln.name }}
           image: "{{ .Values.kubevuln.image.repository }}:{{ .Values.kubevuln.image.tag }}"
@@ -113,22 +77,26 @@ spec:
           resources:
 {{ toYaml .Values.kubevuln.resources | indent 12 }}
           env:
+            {{- if .Values.kubevuln.resources.limits.memory }}
             - name: GOMEMLIMIT
-              valueFrom:
-                resourceFieldRef:
-                  resource: limits.memory
-                  divisor: '1'
-            - name: GOMAXPROCS
-              valueFrom:
-                resourceFieldRef:
-                  resource: limits.cpu
-                  divisor: '1'
+              value: {{ include "kubescape-operator.gomemlimit" (dict "memory" .Values.kubevuln.resources.limits.memory "percentage" .Values.kubevuln.gomemlimitPercentage) | quote }}
+            {{- end }}
             - name: KS_LOGGER_LEVEL
               value: "{{ .Values.logger.level }}"
             - name: KS_LOGGER_NAME
               value: "{{ .Values.logger.name }}"
             - name: PRINT_POST_JSON
               value: "{{ .Values.kubevuln.verbose }}"
+            {{- if .Values.kubevuln.sbomScanner.enabled }}
+            - name: SBOM_SCANNER_SOCKET
+              value: "/sbom-comm/scanner.sock"
+            - name: SCANNER_MEMORY_LIMIT
+              value: {{ .Values.kubevuln.sbomScanner.resources.limits.memory | quote }}
+            {{- end }}
+            {{- if .Values.server }}
+            - name: API_URL
+              value: "https://{{ .Values.server }}"
+            {{- end }}
             {{- range .Values.kubevuln.env }}
             - name: {{ .name }}
               value: "{{ .value }}"
@@ -168,14 +136,12 @@ spec:
               mountPath: /etc/config/clusterData.json
               readOnly: true
               subPath: "clusterData.json"
-            {{- if $components.serviceDiscovery.enabled }}
-            - name: "services"
-              mountPath: /etc/config/services.json
-              readOnly: true
-              subPath: "services.json"
-            {{- end }}
             - name: grype-db
               mountPath: /home/nonroot/.cache/grype
+            {{- if .Values.kubevuln.sbomScanner.enabled }}
+            - name: sbom-comm
+              mountPath: /sbom-comm
+            {{- end }}
 {{- if .Values.volumeMounts }}
 {{ toYaml .Values.volumeMounts | indent 12 }}
 {{- end }}
@@ -198,6 +164,35 @@ spec:
               mountPath: /etc/ssl/certs/{{ $key }}
               subPath: {{ $key }}
         {{- end }}
+{{- end }}
+{{- if .Values.kubevuln.sbomScanner.enabled }}
+        - name: sbom-scanner
+          image: "{{ .Values.kubevuln.image.repository }}:{{ .Values.kubevuln.image.tag }}"
+          imagePullPolicy: {{ .Values.kubevuln.image.pullPolicy }}
+          command:
+{{ toYaml .Values.kubevuln.sbomScanner.command | indent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+          resources:
+{{ toYaml .Values.kubevuln.sbomScanner.resources | indent 12 }}
+          env:
+            {{- if .Values.kubevuln.sbomScanner.resources.limits.memory }}
+            - name: GOMEMLIMIT
+              value: {{ include "kubescape-operator.gomemlimit" (dict "memory" .Values.kubevuln.sbomScanner.resources.limits.memory "percentage" .Values.kubevuln.gomemlimitPercentage) | quote }}
+            {{- end }}
+            - name: SOCKET_PATH
+              value: "/sbom-comm/scanner.sock"
+            - name: KS_LOGGER_LEVEL
+              value: "{{ .Values.logger.level }}"
+            - name: KS_LOGGER_NAME
+              value: "sbom-scanner"
+          volumeMounts:
+            - name: sbom-comm
+              mountPath: /sbom-comm
+            - name: tmp-dir
+              mountPath: /tmp
 {{- end }}
       volumes:
         - name: {{ $components.cloudSecret.name }}
@@ -233,10 +228,6 @@ spec:
             items:
             - key: "clusterData"
               path: "clusterData.json"
-      {{- if $components.serviceDiscovery.enabled }}
-        - name: "services"
-          emptyDir: {}
-      {{- end }}
         - name: "grype-db"
           {{- if .Values.kubevuln.config.grypeDbPersistence }}
           persistentVolumeClaim:
@@ -244,6 +235,10 @@ spec:
           {{- else }}
           emptyDir: {}
           {{- end }}
+      {{- if .Values.kubevuln.sbomScanner.enabled }}
+        - name: sbom-comm
+          emptyDir: {}
+      {{- end }}
 {{- if .Values.volumes }}
 {{ toYaml .Values.volumes | indent 8 }}
 {{- end }}
@@ -270,4 +265,5 @@ spec:
       {{- else if .Values.customScheduling.tolerations }}
       {{- toYaml .Values.customScheduling.tolerations | nindent 8 }}
       {{- end }}
+      {{- include "kubescape-operator.priorityClassName" (dict "component" .Values.kubevuln "global" .Values.customScheduling) | nindent 6 }}
 {{- end }}
