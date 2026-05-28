@@ -83,6 +83,24 @@
                     },
                     "type": "object"
                 },
+                "certificates": {
+                    "properties": {
+                        "certgen": {
+                            "properties": {
+                                "image": {
+                                    "properties": {
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "type": "object"
+                },
                 "clamav": {
                     "properties": {
                         "image": {
@@ -144,6 +162,19 @@
                             "properties": {
                                 "repository": {
                                     "type": "string"
+                                }
+                            },
+                            "type": "object"
+                        },
+                        "sbomScanner": {
+                            "properties": {
+                                "image": {
+                                    "properties": {
+                                        "repository": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             },
                             "type": "object"

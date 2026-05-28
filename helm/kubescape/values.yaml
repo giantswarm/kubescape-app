@@ -39,12 +39,19 @@ kubescape-operator:
         application.giantswarm.io/team: shield
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
+  certificates:
+    certgen:
+      image:
+        repository: "gsoci.azurecr.io/giantswarm/kubectl"
   operator:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-operator"
   kubevuln:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
+    sbomScanner:
+      image:
+        repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
   storage:
     forceVirtualCrds: true
     image:
