@@ -535,4 +535,3 @@ template:
   spec:
     {{- include "node-agent.podSpec" (dict "Values" .Values "Chart" .Chart "Release" .Release "Capabilities" .Capabilities "components" .components "checksums" .checksums "no_proxy_envar_list" .no_proxy_envar_list "autoscalerMode" .autoscalerMode "testingMode" .testingMode "resources" .resources "nodeSelector" .nodeSelector "includeClamAV" .includeClamAV "includeSbomScanner" .includeSbomScanner) | nindent 4 }}
 {{- end -}}
-

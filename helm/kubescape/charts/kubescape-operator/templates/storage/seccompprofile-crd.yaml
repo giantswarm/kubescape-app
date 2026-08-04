@@ -315,4 +315,3 @@ spec:
           type: date
           jsonPath: .metadata.creationTimestamp
 {{- end }}
-

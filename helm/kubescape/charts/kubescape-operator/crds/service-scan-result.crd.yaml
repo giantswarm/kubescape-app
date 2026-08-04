@@ -23,7 +23,7 @@ spec:
             type: object
             properties:
               clusterIP:
-                type: string             
+                type: string
               ports:
                 type: array
                 items:
