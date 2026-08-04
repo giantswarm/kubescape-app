@@ -3,7 +3,7 @@
 {{- $operatorContext := dict "Values" $operatorValues "Chart" $.Chart "Release" $.Release "Capabilities" $.Capabilities "Template" $.Template }}
 {{- $components := fromYaml (include "components" $operatorContext) }}
 {{- range .Values.podLogs.components }}
-{{- /* 
+{{- /*
   A component's PodLog resource is only rendered if both:
   1. PodLogs for the component are enabled in the values.yaml podLogs list (.enabled)
   2. The component itself is enabled in the kubescape-operator capabilities

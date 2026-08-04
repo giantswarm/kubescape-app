@@ -53,4 +53,3 @@ Please migrate any overrides to operator.admissionWebhooks.service.*:
   - operator.admissionService.targetPort  -> operator.admissionWebhooks.service.targetPort
   - operator.admissionService.annotations -> operator.admissionWebhooks.service.annotations
 {{- end }}
-
