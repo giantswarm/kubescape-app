@@ -1,7 +1,10 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "additionalProperties": true,
     "properties": {
         "exceptions": {
+            "type": "object",
             "properties": {
                 "enabled": {
                     "type": "boolean"
@@ -9,10 +12,10 @@
                 "namespace": {
                     "type": "string"
                 }
-            },
-            "type": "object"
+            }
         },
         "image": {
+            "type": "object",
             "properties": {
                 "name": {
                     "type": "string"
@@ -20,20 +23,21 @@
                 "tag": {
                     "type": "string"
                 }
-            },
-            "type": "object"
+            }
         },
         "kubescape-operator": {
+            "type": "object",
             "properties": {
                 "additionalLabels": {
+                    "type": "object",
                     "properties": {
                         "application.giantswarm.io/team": {
                             "type": "string"
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "capabilities": {
+                    "type": "object",
                     "properties": {
                         "configurationScan": {
                             "type": "string"
@@ -80,124 +84,117 @@
                         "vulnerabilityScan": {
                             "type": "string"
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "certificates": {
+                    "type": "object",
                     "properties": {
                         "certgen": {
+                            "type": "object",
                             "properties": {
                                 "image": {
+                                    "type": "object",
                                     "properties": {
                                         "repository": {
                                             "type": "string"
                                         }
-                                    },
-                                    "type": "object"
+                                    }
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "clamav": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "kubescape": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         },
                         "serviceMonitor": {
+                            "type": "object",
                             "properties": {
-                                "additionalLabels": {
-                                    "properties": {
-                                        "application.giantswarm.io/team": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                },
                                 "enabled": {
                                     "type": "boolean"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "kubescapeScheduler": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "kubevuln": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         },
                         "sbomScanner": {
+                            "type": "object",
                             "properties": {
                                 "image": {
+                                    "type": "object",
                                     "properties": {
                                         "repository": {
                                             "type": "string"
                                         }
-                                    },
-                                    "type": "object"
+                                    }
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "kubevulnScheduler": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "nodeAgent": {
+                    "type": "object",
                     "properties": {
                         "config": {
+                            "type": "object",
                             "properties": {
                                 "learningPeriod": {
                                     "type": "string"
@@ -214,116 +211,114 @@
                                 "updatePeriod": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         },
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         },
                         "serviceMonitor": {
+                            "type": "object",
                             "properties": {
                                 "enabled": {
                                     "type": "boolean"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "operator": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "otelCollector": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "prometheusExporter": {
+                    "type": "object",
                     "properties": {
                         "enableWorkloadMetrics": {
                             "type": "boolean"
                         },
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "registryScanScheduler": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "storage": {
+                    "type": "object",
                     "properties": {
                         "forceVirtualCrds": {
                             "type": "boolean"
                         },
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 },
                 "synchronizer": {
+                    "type": "object",
                     "properties": {
                         "image": {
+                            "type": "object",
                             "properties": {
                                 "repository": {
                                     "type": "string"
                                 }
-                            },
-                            "type": "object"
+                            }
                         }
-                    },
-                    "type": "object"
+                    }
                 }
-            },
-            "type": "object"
+            }
         },
         "podLogs": {
+            "type": "object",
             "properties": {
                 "commonAnnotations": {
                     "type": "object"
@@ -332,7 +327,9 @@
                     "type": "object"
                 },
                 "components": {
+                    "type": "array",
                     "items": {
+                        "type": "object",
                         "properties": {
                             "enabled": {
                                 "type": "boolean"
@@ -340,10 +337,8 @@
                             "name": {
                                 "type": "string"
                             }
-                        },
-                        "type": "object"
-                    },
-                    "type": "array"
+                        }
+                    }
                 },
                 "enabled": {
                     "type": "boolean"
@@ -351,9 +346,7 @@
                 "tenant": {
                     "type": "string"
                 }
-            },
-            "type": "object"
+            }
         }
-    },
-    "type": "object"
+    }
 }

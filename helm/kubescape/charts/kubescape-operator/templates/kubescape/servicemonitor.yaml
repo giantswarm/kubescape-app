@@ -23,7 +23,7 @@ spec:
     - port: http
       path: /v1/metrics
       {{- if .Values.kubescape.serviceMonitor.skipPersistence }}
-      params: 
+      params:
         skipPersistence: ["{{ .Values.kubescape.serviceMonitor.skipPersistence }}"]
       {{- end }}
       interval: {{ .Values.kubescape.serviceMonitor.interval }}
