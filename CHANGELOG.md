@@ -9,8 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.1] - 2026-08-25
 
-## [0.1.1] - 2026-08-25
-
 ### Fixed
 
 - Remove duplicate `application.giantswarm.io/team` label from the kubescape ServiceMonitor, which caused Helm install to fail on a duplicate YAML key.
