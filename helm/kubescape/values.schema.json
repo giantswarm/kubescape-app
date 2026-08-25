@@ -131,14 +131,6 @@
                         "serviceMonitor": {
                             "type": "object",
                             "properties": {
-                                "additionalLabels": {
-                                    "type": "object",
-                                    "properties": {
-                                        "application.giantswarm.io/team": {
-                                            "type": "string"
-                                        }
-                                    }
-                                },
                                 "enabled": {
                                     "type": "boolean"
                                 }
