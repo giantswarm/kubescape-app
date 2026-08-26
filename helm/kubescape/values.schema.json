@@ -1,7 +1,7 @@
 {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "additionalProperties": false,
+    "additionalProperties": true,
     "properties": {
         "baseDomain": {
             "type": "string"
@@ -36,7 +36,6 @@
         },
         "exceptions": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
                 "enabled": {
                     "type": "boolean"
@@ -49,17 +48,8 @@
         "gcpProject": {
             "type": "string"
         },
-        "global": {
-            "type": [
-                "object",
-                "null"
-            ],
-            "description": "Global values shared between all subcharts",
-            "$comment": "Added automatically by 'helm schema' to allow this chart to be used as a Helm dependency, as this schema would otherwise not allow Helm's special 'global' values key."
-        },
         "image": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
                 "name": {
                     "type": "string"
@@ -71,11 +61,9 @@
         },
         "kubescape-operator": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
                 "additionalLabels": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "application.giantswarm.io/team": {
                             "type": "string"
@@ -84,7 +72,6 @@
                 },
                 "capabilities": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "configurationScan": {
                             "type": "string"
@@ -135,15 +122,12 @@
                 },
                 "certificates": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "certgen": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "image": {
                                     "type": "object",
-                                    "additionalProperties": false,
                                     "properties": {
                                         "repository": {
                                             "type": "string"
@@ -156,11 +140,9 @@
                 },
                 "clamav": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -171,11 +153,9 @@
                 },
                 "kubescape": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -184,7 +164,6 @@
                         },
                         "serviceMonitor": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "enabled": {
                                     "type": "boolean"
@@ -195,11 +174,9 @@
                 },
                 "kubescapeScheduler": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -210,11 +187,9 @@
                 },
                 "kubevuln": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -223,11 +198,9 @@
                         },
                         "sbomScanner": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "image": {
                                     "type": "object",
-                                    "additionalProperties": false,
                                     "properties": {
                                         "repository": {
                                             "type": "string"
@@ -240,11 +213,9 @@
                 },
                 "kubevulnScheduler": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -255,11 +226,9 @@
                 },
                 "nodeAgent": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "config": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "learningPeriod": {
                                     "type": "string"
@@ -280,7 +249,6 @@
                         },
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -289,7 +257,6 @@
                         },
                         "serviceMonitor": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "enabled": {
                                     "type": "boolean"
@@ -300,11 +267,9 @@
                 },
                 "operator": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -315,11 +280,9 @@
                 },
                 "otelCollector": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -330,14 +293,12 @@
                 },
                 "prometheusExporter": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "enableWorkloadMetrics": {
                             "type": "boolean"
                         },
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -348,11 +309,9 @@
                 },
                 "registryScanScheduler": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -363,14 +322,12 @@
                 },
                 "storage": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "forceVirtualCrds": {
                             "type": "boolean"
                         },
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -381,11 +338,9 @@
                 },
                 "synchronizer": {
                     "type": "object",
-                    "additionalProperties": false,
                     "properties": {
                         "image": {
                             "type": "object",
-                            "additionalProperties": false,
                             "properties": {
                                 "repository": {
                                     "type": "string"
@@ -398,21 +353,17 @@
         },
         "podLogs": {
             "type": "object",
-            "additionalProperties": false,
             "properties": {
                 "commonAnnotations": {
-                    "type": "object",
-                    "additionalProperties": false
+                    "type": "object"
                 },
                 "commonLabels": {
-                    "type": "object",
-                    "additionalProperties": false
+                    "type": "object"
                 },
                 "components": {
                     "type": "array",
                     "items": {
                         "type": "object",
-                        "additionalProperties": false,
                         "properties": {
                             "enabled": {
                                 "type": "boolean"
