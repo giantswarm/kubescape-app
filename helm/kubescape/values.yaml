@@ -1,6 +1,6 @@
 # Values for the kubescape operator app
 
-exceptions:
+exceptions:  # @schema additionalProperties: true
   enabled: true
   namespace: policy-exceptions
 
@@ -8,7 +8,7 @@ image:
   name: ""
   tag: ""
 
-kubescape-operator:
+kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
   additionalLabels:
     application.giantswarm.io/team: shield
 
@@ -122,3 +122,7 @@ podLogs:
       enabled: true
     - name: synchronizer
       enabled: true
+
+# Vendored upstream subchart (charts/dependency_chart); declared so its coalesced
+# defaults are accepted by the generated schema.
+dependency_chart: {}  # @schema skipProperties: true; additionalProperties: true
