@@ -1,5 +1,10 @@
 # Values for the kubescape operator app
 
+# Flatcar ships runc at /opt/bin/runc, which is not in the node-agent's
+# built-in runtime path list, so it must be set explicitly.
+global:  # @schema additionalProperties: true
+  overrideRuntimePath: /opt/bin/runc
+
 exceptions:  # @schema additionalProperties: true
   enabled: true
   namespace: policy-exceptions

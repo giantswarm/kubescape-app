@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Set `global.overrideRuntimePath` to `/opt/bin/runc` so the node-agent finds runc on Flatcar nodes.
+
 ### Changed
 
 - Allow additional properties for vendored upstream chart values so upstream keys are not rejected by the generated schema.
