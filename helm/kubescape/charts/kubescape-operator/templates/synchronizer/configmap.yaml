@@ -28,6 +28,12 @@ data:
             "strategy": "patch"
           },
           {
+            "group": "",
+            "version": "v1",
+            "resource": "serviceaccounts",
+            "strategy": "patch"
+          },
+          {
             "group": "networking.k8s.io",
             "version": "v1",
             "resource": "ingresses",
@@ -154,22 +160,18 @@ data:
             "strategy": "patch"
           },
           {{- if $components.storage.enabled }}
+          {{- if not $configurations.backendStorageEnabled }}
           {
             "group": "spdx.softwarecomposition.kubescape.io",
             "version": "v1beta1",
-            "resource": "applicationprofiles",
+            "resource": "containerprofiles",
             "strategy": "copy"
           },
+          {{- end }}
           {
             "group": "spdx.softwarecomposition.kubescape.io",
             "version": "v1beta1",
             "resource": "knownservers",
-            "strategy": "copy"
-          },
-          {
-            "group": "spdx.softwarecomposition.kubescape.io",
-            "version": "v1beta1",
-            "resource": "networkneighborhoods",
             "strategy": "copy"
           },
           {{- if eq .Values.capabilities.syncSBOM "enable" }}
@@ -302,6 +304,12 @@ data:
             "group": "kubescape.io",
             "version": "v1",
             "resource": "registrystatuses",
+            "strategy": "copy"
+          },
+          {
+            "group": "kubescape.io",
+            "version": "v1",
+            "resource": "aisandboxheartbeats",
             "strategy": "copy"
           }
         ]

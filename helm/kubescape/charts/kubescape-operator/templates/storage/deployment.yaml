@@ -24,21 +24,18 @@ spec:
     metadata:
       {{- $podAnnotations := include "kubescape-operator.annotations" (dict "Values" .Values) }}
       {{- $hasCertgenChecksum := and .Values.storage.mtls.enabled (eq (include "kubescape.certificates.strategy" .) "initContainer") }}
-      {{- if or $podAnnotations .Values.storage.podAnnotations $hasCertgenChecksum }}
       annotations:
         {{- with $podAnnotations }}{{- . | nindent 8 }}{{- end }}
         {{- with .Values.storage.podAnnotations }}{{- toYaml . | nindent 8 }}{{- end }}
+        checksum/storage-config: {{ $checksums.storageConfig }}
+        checksum/cloud-config: {{ $checksums.cloudConfig }}
         {{- if $hasCertgenChecksum }}
         checksum/storage-certgen-scripts: {{ $checksums.storageCertgenScripts }}
         {{- end }}
-      {{- end }}
       labels:
         {{- include "kubescape-operator.labels" (dict "Chart" .Chart "Release" .Release "Values" .Values "app" .Values.storage.name "tier" .Values.global.namespaceTier) | nindent 8 }}
         {{- with .Values.storage.podLabels }}{{- toYaml . | nindent 8 }}{{- end }}
         kubescape.io/tier: "core"
-      {{- if $components.otelCollector.enabled }}
-        otel: enabled
-      {{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -51,10 +48,15 @@ spec:
       {{- end }}
       {{- end }}
       serviceAccountName: {{ .Values.storage.name }}
+      {{- if .Values.storage.hostNetwork }}
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
       securityContext:
         seccompProfile:
           type: RuntimeDefault
         runAsUser: 65532
+        runAsGroup: 65532
         fsGroup: 65532
       {{- if and .Values.storage.mtls.enabled (eq (include "kubescape.certificates.strategy" .) "initContainer") }}
       {{- $certgenImage := printf "%s:%s" .Values.certificates.certgen.image.repository (.Values.certificates.certgen.image.tag | toString) }}
@@ -66,6 +68,7 @@ spec:
           imagePullPolicy: {{ .Values.certificates.certgen.image.pullPolicy }}
           securityContext:
             runAsUser: 65532
+            runAsGroup: 65532
             runAsNonRoot: true
             allowPrivilegeEscalation: false
             capabilities:
@@ -98,6 +101,7 @@ spec:
           imagePullPolicy: {{ .Values.certificates.certgen.image.pullPolicy }}
           securityContext:
             runAsUser: 65532
+            runAsGroup: 65532
             runAsNonRoot: true
             allowPrivilegeEscalation: false
             capabilities:
@@ -131,6 +135,9 @@ spec:
         securityContext:
           allowPrivilegeEscalation: false
           runAsNonRoot: true
+          capabilities:
+            drop:
+              - ALL
         livenessProbe:
           httpGet:
             path: /livez
@@ -151,14 +158,6 @@ spec:
             value: "{{ .Values.logger.level }}"
           - name: KS_LOGGER_NAME
             value: "{{ .Values.logger.name }}"
-          {{- if $components.otelCollector.enabled }}
-          - name: OTEL_COLLECTOR_SVC
-            value: "otel-collector:4318"
-          {{- end }}
-          {{- if .Values.configurations.otelUrl }}
-          - name: OTEL_COLLECTOR_SVC
-            value: {{ .Values.configurations.otelUrl }}
-          {{- end }}
         volumeMounts:
           - name: "data"
             mountPath: "/data"

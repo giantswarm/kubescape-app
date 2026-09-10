@@ -7,15 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated `kubescape-operator` to upstream version `v1.40.4`.
+
 ## [0.1.2] - 2026-09-07
-
-### Fixed
-
-- Set `global.overrideRuntimePath` to `/opt/bin/runc` so the node-agent finds runc on Flatcar nodes.
 
 ### Changed
 
 - Allow additional properties for vendored upstream chart values so upstream keys are not rejected by the generated schema.
+
+### Fixed
+
+- Set `global.overrideRuntimePath` to `/opt/bin/runc` so the node-agent finds runc on Flatcar nodes.
 
 ## [0.1.1] - 2026-08-26
 
