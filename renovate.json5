@@ -4,20 +4,6 @@
     'github>giantswarm/renovate-presets:disable-vendir.json5',
     'github>giantswarm/renovate-presets:disable-upstream-charts.json5',
   ],
-  customManagers: [
-    {
-      customType: 'regex',
-      managerFilePatterns: [
-        '/(^|/)vendir\\.yml$/',
-      ],
-      matchStrings: [
-        'ref: (?<currentValue>kubescape-operator-[\\d.]+)',
-      ],
-      depNameTemplate: 'kubescape/helm-charts',
-      datasourceTemplate: 'github-tags',
-      versioningTemplate: 'regex:^kubescape-operator-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$',
-    },
-  ],
   packageRules: [
     {
       matchFileNames: [
@@ -26,6 +12,7 @@
       groupName: 'kubescape-upstream',
       branchPrefix: 'renovate/vendir/',
       prCreation: 'approval',
+      versioning: 'regex:^kubescape-operator-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)$',
     },
   ],
 }
