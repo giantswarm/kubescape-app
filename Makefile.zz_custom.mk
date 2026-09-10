@@ -6,9 +6,9 @@
 update-chart: check-env ## Sync chart with upstream repo.
 	@echo "====> $@"
 	vendir sync
-	@if [ ! -f $(APPLICATION)/charts/dependency_chart/Chart.yaml ]; then \
+	@if [ ! -f helm/$(APPLICATION)/charts/dependency_chart/Chart.yaml ]; then \
 		echo "Restoring missing dependency_chart/Chart.yaml"; \
 		printf 'apiVersion: v2\nname: dependency_chart\nversion: 0.0.0\nannotations:\n  application.giantswarm.io/team: shield\n' \
-			> $(APPLICATION)/charts/dependency_chart/Chart.yaml; \
+			> helm/$(APPLICATION)/charts/dependency_chart/Chart.yaml; \
 	fi
 	$(MAKE) update-deps APPLICATION=$(APPLICATION)
