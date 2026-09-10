@@ -1,5 +1,7 @@
 Thank you for installing {{ .Chart.Name }} version {{ .Chart.Version }}.
 {{ $components := fromYaml (include "components" .) -}}
+{{ $configurations := fromYaml (include "configurations" .) -}}
+{{ $gates := fromYaml (include "capabilities.gates" .) -}}
 {{ if $components.kubescapeScheduler.enabled -}}
 
 View your cluster's configuration scanning schedule:
@@ -43,6 +45,11 @@ To enable scanning of private images, either:
 - Enable cluster-wide secret access: Set global.enableClusterWideSecretAccess: true
 {{- end }}
 
+{{- range $gates.warnings }}
+
+WARNING: {{ . }}
+{{- end }}
+
 {{- $legacyAdmissionSvc := .Values.operator.admissionService | default dict }}
 {{- if or $legacyAdmissionSvc.type $legacyAdmissionSvc.port $legacyAdmissionSvc.targetPort $legacyAdmissionSvc.annotations }}
 
@@ -53,3 +60,4 @@ Please migrate any overrides to operator.admissionWebhooks.service.*:
   - operator.admissionService.targetPort  -> operator.admissionWebhooks.service.targetPort
   - operator.admissionService.annotations -> operator.admissionWebhooks.service.annotations
 {{- end }}
+
