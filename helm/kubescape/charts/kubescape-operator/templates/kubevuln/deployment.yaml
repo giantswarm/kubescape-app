@@ -34,9 +34,6 @@ spec:
         {{- include "kubescape-operator.labels" (dict "Chart" .Chart "Release" .Release "Values" .Values "app" .Values.kubevuln.name "tier" .Values.global.namespaceTier) | nindent 8 }}
         {{- with .Values.kubevuln.podLabels }}{{- toYaml . | nindent 8 }}{{- end }}
         kubescape.io/tier: "core"
-      {{- if $components.otelCollector.enabled }}
-        otel: enabled
-      {{- end }}
     spec:
       {{- if .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -52,6 +49,7 @@ spec:
         seccompProfile:
           type: RuntimeDefault
         runAsUser: 65532
+        runAsGroup: 65532
         fsGroup: 65532
       containers:
         - name: {{ .Values.kubevuln.name }}
@@ -61,6 +59,9 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           ports:
           - containerPort: {{ .Values.kubevuln.service.port }}
             protocol: TCP
@@ -100,19 +101,6 @@ spec:
             {{- range .Values.kubevuln.env }}
             - name: {{ .name }}
               value: "{{ .value }}"
-            {{- end }}
-            {{- if $components.otelCollector.enabled }}
-            - name: ACCOUNT_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $components.cloudSecret.name }}
-                  key: account
-            - name: OTEL_COLLECTOR_SVC
-              value: "otel-collector:4318"
-            {{- end }}
-            {{- if .Values.configurations.otelUrl }}
-            - name: OTEL_COLLECTOR_SVC
-              value: {{ .Values.configurations.otelUrl }}
             {{- end }}
             {{- if ne .Values.global.httpsProxy "" }}
             - name: HTTPS_PROXY
@@ -175,6 +163,9 @@ spec:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
           resources:
 {{ toYaml .Values.kubevuln.sbomScanner.resources | indent 12 }}
           env:
@@ -193,6 +184,23 @@ spec:
               mountPath: /sbom-comm
             - name: tmp-dir
               mountPath: /tmp
+{{- if ne .Values.global.proxySecretFile "" }}
+            - name: proxy-secret
+              mountPath: /etc/ssl/certs/proxy.crt
+              subPath: proxy.crt
+{{- end }}
+{{- if .Values.global.overrideDefaultCaCertificates.enabled }}
+            - name: custom-ca-certificates
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+{{- end }}
+{{- if .Values.global.extraCaCertificates.enabled }}
+        {{- range $key, $value := (lookup "v1" "Secret" .Values.ksNamespace .Values.global.extraCaCertificates.secretName).data }}
+            - name: extra-ca-certificates
+              mountPath: /etc/ssl/certs/{{ $key }}
+              subPath: {{ $key }}
+        {{- end }}
+{{- end }}
 {{- end }}
       volumes:
         - name: {{ $components.cloudSecret.name }}

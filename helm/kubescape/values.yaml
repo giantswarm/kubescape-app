@@ -59,15 +59,9 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     forceVirtualCrds: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-storage"
-  clamav:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-klamav"
   synchronizer:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
-  otelCollector:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-otel-collector"
   kubescapeScheduler:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"

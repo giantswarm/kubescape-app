@@ -58,3 +58,4 @@ v1beta1.spdx.softwarecomposition.kubescape.io
 {{- end -}}
 {{- toYaml .Values.global._storageCertData -}}
 {{- end -}}
+
