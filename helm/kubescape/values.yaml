@@ -38,6 +38,12 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     prometheusExporter: enable
 
   kubescape:
+    # ephemeral-storage bounds the results/failed/artifact emptyDirs (require-emptydir-requests-and-limits).
+    resources:
+      requests:
+        ephemeral-storage: 512Mi
+      limits:
+        ephemeral-storage: 4Gi
     serviceMonitor:
       enabled: true
     image:
@@ -47,6 +53,11 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
       image:
         repository: "gsoci.azurecr.io/giantswarm/kubectl"
   operator:
+    resources:
+      requests:
+        ephemeral-storage: 128Mi
+      limits:
+        ephemeral-storage: 1Gi
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-operator"
   kubevuln:
@@ -72,6 +83,11 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
   nodeAgent:
+    resources:
+      requests:
+        ephemeral-storage: 256Mi
+      limits:
+        ephemeral-storage: 2Gi
     config:
       stdoutExporter: true
       maxLearningPeriod: 12h
