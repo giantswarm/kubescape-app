@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `kubescape-operator` to upstream version `v1.40.4`.
 - set size limits for emptyDir volumes
+- Updated `kubescape-operator` to upstream version `v1.41.0`.
 
 ## [0.1.2] - 2026-09-07
 
