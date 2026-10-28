@@ -2,18 +2,18 @@ apiVersion: vendir.k14s.io/v1alpha1
 directories:
 - contents:
   - git:
-      commitTitle: prepare next release (#905)...
-      sha: e3c15329392fe9cc2db735d0f89f4a732b533244
+      commitTitle: 'chore(components): bump core components for Helm 1.41.0 (#985)...'
+      sha: 4806576ecca63a0e175276686ef7a41efc1b9d60
       tags:
-      - kubescape-operator-1.40.4
+      - kubescape-operator-1.41.0
     path: .
   path: helm/kubescape/charts/kubescape-operator
 - contents:
   - git:
-      commitTitle: prepare next release (#905)...
-      sha: e3c15329392fe9cc2db735d0f89f4a732b533244
+      commitTitle: 'chore(components): bump core components for Helm 1.41.0 (#985)...'
+      sha: 4806576ecca63a0e175276686ef7a41efc1b9d60
       tags:
-      - kubescape-operator-1.40.4
+      - kubescape-operator-1.41.0
     path: .
   path: helm/kubescape/charts/dependency_chart
 kind: LockConfig
