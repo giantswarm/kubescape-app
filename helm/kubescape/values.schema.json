@@ -50,17 +50,29 @@
                 }
             }
         },
+        "externalDNSIP": {
+            "type": "string"
+        },
         "gcpProject": {
             "type": "string"
         },
         "global": {
             "type": "object",
+            "description": "Global values shared between all subcharts and the platform.",
             "additionalProperties": true,
             "properties": {
                 "overrideRuntimePath": {
                     "type": "string"
+                },
+                "podSecurityStandards": {
+                    "type": "object",
+                    "additionalProperties": true
                 }
             }
+        },
+        "helm": {
+            "type": "object",
+            "additionalProperties": true
         },
         "image": {
             "type": "object",
@@ -77,6 +89,9 @@
         "kubescape-operator": {
             "type": "object",
             "additionalProperties": true
+        },
+        "managementCluster": {
+            "type": "string"
         },
         "podLogs": {
             "type": "object",
