@@ -7,6 +7,6 @@ dependencies:
   version: 0.0.0
 - name: kubescape-operator
   repository: ""
-  version: 1.40.4
-digest: sha256:601c39923a24fa3473756ea6f5973f2d1cc2d4ad4f9c17a293fe18fa3500d967
-generated: "2026-09-10T22:52:10.845444999Z"
+  version: 1.42.0
+digest: sha256:f23e3fa07e8a03178a84947840158eeb73fc55a6e8cf6797e9c2bb80c5b5151e
+generated: "2026-11-06T16:44:59.035730971Z"
