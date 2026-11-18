@@ -61,6 +61,13 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-operator"
   kubevuln:
+    resources:
+      limits:
+        # The daily grype DB update keeps the old and the new DB (~3.2 GB each)
+        # on disk side by side while the new one is indexed, which spikes usage
+        # well above the steady state. The upstream 10Gi limit leaves too little
+        # headroom and the pod gets evicted mid-update.
+        ephemeral-storage: 20Gi
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
     sbomScanner:
