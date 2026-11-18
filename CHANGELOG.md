@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Updated `kubescape-operator` to upstream version `v1.40.4`.
 - set size limits for emptyDir volumes
+- Updated `kubescape-operator` to upstream version `v1.42.0`.
+- Replaced the scheduler and certgen image overrides, which upstream removed, with a `kubescapeOpsTool.image` override pointing at `gsoci.azurecr.io/giantswarm/kubescape-ops-tool`.
 
 ## [0.1.2] - 2026-09-07
 
