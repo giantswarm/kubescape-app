@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fix `PodLogs` rendering failing with a nil pointer on `otelCollector` since upstream `v1.42.0` removed the bundled otel-collector; drop the stale `otel-collector` and `host-scanner` `podLogs` entries and treat components missing upstream as disabled.
+
 ## [0.2.0] - 2026-11-18
 
 ### Changed

@@ -113,8 +113,6 @@ podLogs:
       # labels: {}
       # relabelings: {}
       # tenant: ""
-    - name: host-scanner
-      enabled: false
     - name: kubescape
       enabled: false
     - name: kubescape-scheduler
@@ -126,8 +124,6 @@ podLogs:
     - name: node-agent
       enabled: true
     - name: operator
-      enabled: true
-    - name: otel-collector
       enabled: true
     - name: prometheus-exporter
       enabled: true
