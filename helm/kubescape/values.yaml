@@ -48,10 +48,10 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
       enabled: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
-  certificates:
-    certgen:
-      image:
-        repository: "gsoci.azurecr.io/giantswarm/kubectl"
+  # Runs the scan schedulers, the certgen init containers and the grype-offline-db rollout.
+  kubescapeOpsTool:
+    image:
+      repository: "gsoci.azurecr.io/giantswarm/kubescape-ops-tool"
   operator:
     resources:
       requests:
@@ -80,15 +80,6 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
   synchronizer:
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
-  kubescapeScheduler:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
-  kubevulnScheduler:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
-  registryScanScheduler:
-    image:
-      repository: "gsoci.azurecr.io/giantswarm/kubescape-http-request"
   nodeAgent:
     resources:
       requests:
