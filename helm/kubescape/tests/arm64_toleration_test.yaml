@@ -1,0 +1,162 @@
+suite: arm64 node pool toleration on every kubescape workload
+# The upstream checksums helper includes the configmaps below, so they must
+# be loaded too; each test selects its workload with `template:`.
+templates:
+  - charts/kubescape-operator/templates/node-agent/daemonset.yaml
+  - charts/kubescape-operator/templates/kubescape/deployment.yaml
+  - charts/kubescape-operator/templates/kubevuln/deployment.yaml
+  - charts/kubescape-operator/templates/operator/deployment.yaml
+  - charts/kubescape-operator/templates/prometheus-exporter/deployment.yaml
+  - charts/kubescape-operator/templates/storage/deployment.yaml
+  - charts/kubescape-operator/templates/kubescape-scheduler/cronjob.yaml
+  - charts/kubescape-operator/templates/kubevuln-scheduler/cronjob.yaml
+  - charts/kubescape-operator/templates/grype-offline-db/deployment.yaml
+  - charts/kubescape-operator/templates/node-agent/configmap.yaml
+  - charts/kubescape-operator/templates/configs/components-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloudapi-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloud-secret.yaml
+  - charts/kubescape-operator/templates/configs/matchingRules-configmap.yaml
+  - charts/kubescape-operator/templates/operator/configmap.yaml
+  - charts/kubescape-operator/templates/proxy-support/proxy-secret.yaml
+  - charts/kubescape-operator/templates/storage/configmap.yaml
+  - charts/kubescape-operator/templates/synchronizer/configmap.yaml
+# The CronJob templates require batch/v1 to be served.
+capabilities:
+  apiVersions:
+    - batch/v1
+tests:
+  - it: node-agent tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: kubescape tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/kubescape/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: kubevuln tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/kubevuln/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: operator tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/operator/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: prometheus-exporter tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/prometheus-exporter/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: storage tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/storage/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.template.spec.tolerations
+          count: 1
+  - it: kubescape-scheduler tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/kubescape-scheduler/cronjob.yaml
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.jobTemplate.spec.template.spec.tolerations
+          count: 1
+  - it: kubevuln-scheduler tolerates the arm64 node pool taint
+    template: charts/kubescape-operator/templates/kubevuln-scheduler/cronjob.yaml
+    asserts:
+      - contains:
+          path: spec.jobTemplate.spec.template.spec.tolerations
+          content:
+            key: kubernetes.io/arch
+            operator: Equal
+            value: arm64
+            effect: NoSchedule
+      - lengthEqual:
+          path: spec.jobTemplate.spec.template.spec.tolerations
+          count: 1
+  - it: node-agent still runs on every linux node, not only arm64
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            kubernetes.io/os: linux
+  - it: a per-component list still overrides the default for that component
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    set:
+      kubescape-operator.nodeAgent.tolerations:
+        - key: example.com/dedicated
+          operator: Exists
+    asserts:
+      - equal:
+          path: spec.template.spec.tolerations
+          value:
+            - key: example.com/dedicated
+              operator: Exists
+  # The optional grype-offline-db image is amd64-only, so the arm64 default
+  # toleration must not let it onto arm64 nodes.
+  - it: grype-offline-db stays on amd64 nodes when enabled
+    template: charts/kubescape-operator/templates/grype-offline-db/deployment.yaml
+    set:
+      kubescape-operator.grypeOfflineDB.enabled: true
+    asserts:
+      - equal:
+          path: spec.template.spec.nodeSelector
+          value:
+            kubernetes.io/os: linux
+            kubernetes.io/arch: amd64

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- All kubescape components, including the `node-agent` DaemonSet, tolerate the `kubernetes.io/arch=arm64:NoSchedule` taint of Giant Swarm arm64 node pools, set as the chart-wide `kubescape-operator.customScheduling.tolerations` default. Arm64 nodes now get runtime detection and node scans. If you set your own `tolerations` for a component or for `customScheduling`, include this toleration to keep arm64 support.
+
+### Changed
+
+- The optional `grype-offline-db` Deployment is pinned to `amd64` nodes, because its image is amd64-only.
+
+### Fixed
+
+- Point the optional node-agent `sbom-scanner` sidecar at the Giant Swarm registry through `nodeAgent.sbomScanner.image`; the previous `kubevuln.sbomScanner.image` override was never read, so the sidecar pulled from `quay.io`.
+
 ## [0.2.1] - 2026-11-18
 
 ### Fixed

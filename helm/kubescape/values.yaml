@@ -17,6 +17,17 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
   additionalLabels:
     application.giantswarm.io/team: shield
 
+  # Chart-wide default for every component that sets no tolerations of its own.
+  # Giant Swarm arm64 node pools carry this taint; all kubescape images are
+  # multi-arch, so every component may run there. A component-level
+  # `tolerations` list replaces this one for that component.
+  customScheduling:
+    tolerations:
+      - key: "kubernetes.io/arch"
+        operator: "Equal"
+        value: "arm64"
+        effect: "NoSchedule"
+
   capabilities:
     operator: enable
     configurationScan: enable
@@ -70,9 +81,6 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
         ephemeral-storage: 20Gi
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-kubevuln"
-    sbomScanner:
-      image:
-        repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
   storage:
     forceVirtualCrds: true
     image:
@@ -96,6 +104,16 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
       enabled: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
+    # The optional sbom-scanner sidecar runs the node-agent image with another entrypoint.
+    sbomScanner:
+      image:
+        repository: "gsoci.azurecr.io/giantswarm/kubescape-node-agent"
+  # Optional (off by default). Its image is amd64-only, so keep it off the arm64
+  # nodes that customScheduling above lets every component onto.
+  grypeOfflineDB:
+    nodeSelector:
+      kubernetes.io/os: linux
+      kubernetes.io/arch: amd64
   prometheusExporter:
     enableWorkloadMetrics: true
     image:
