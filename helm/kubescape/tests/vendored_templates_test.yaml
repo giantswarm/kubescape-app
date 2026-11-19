@@ -1,0 +1,13 @@
+suite: vendored upstream templates stay in the chart
+# .helmignore keeps this chart's own tests/ out of the package; it must not
+# also drop upstream template directories that happen to be called tests/.
+templates:
+  - charts/kubescape-operator/templates/storage/tests/test-connection.yaml
+tests:
+  - it: the upstream storage test hook is still rendered
+    asserts:
+      - isKind:
+          of: Pod
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: test
