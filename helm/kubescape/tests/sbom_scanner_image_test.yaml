@@ -1,0 +1,25 @@
+suite: node-agent sbom-scanner sidecar image
+# The upstream checksums helper includes the configmaps below, so they must
+# be loaded too; each test selects the DaemonSet with `template:`.
+templates:
+  - charts/kubescape-operator/templates/node-agent/daemonset.yaml
+  - charts/kubescape-operator/templates/node-agent/configmap.yaml
+  - charts/kubescape-operator/templates/configs/components-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloudapi-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloud-secret.yaml
+  - charts/kubescape-operator/templates/configs/matchingRules-configmap.yaml
+  - charts/kubescape-operator/templates/operator/configmap.yaml
+  - charts/kubescape-operator/templates/proxy-support/proxy-secret.yaml
+  - charts/kubescape-operator/templates/storage/configmap.yaml
+  - charts/kubescape-operator/templates/synchronizer/configmap.yaml
+tests:
+  # The sidecar is off by default; when enabled it must pull from our registry,
+  # not quay.io. Upstream reads its image only from nodeAgent.sbomScanner.image.
+  - it: sbom-scanner sidecar uses the Giant Swarm node-agent image
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    set:
+      kubescape-operator.nodeAgent.sbomScanner.enabled: true
+    asserts:
+      - matchRegex:
+          path: spec.template.spec.containers[?(@.name == "sbom-scanner")].image
+          pattern: '^gsoci\.azurecr\.io/giantswarm/kubescape-node-agent:'
