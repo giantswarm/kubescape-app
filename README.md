@@ -36,6 +36,8 @@ exceptions:
 
 See our [full reference on how to configure apps](https://docs.giantswarm.io/tutorials/fleet-management/app-platform/app-configuration/) for more details.
 
+On a cluster behind an HTTP egress proxy, see [Running behind an HTTP egress proxy](docs/proxy.md) for the hosts to allow and the values to set.
+
 ## Known issues
 
 - Flatcar images from Giant Swarm release v35 onwards ship runc only at `/opt/bin/runc`. The node-agent crash-loops when it cannot find runc, which is why `global.overrideRuntimePath` defaults to that path since app version 0.1.2. Override it on nodes with a different layout.

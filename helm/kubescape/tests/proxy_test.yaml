@@ -1,0 +1,76 @@
+suite: behaviour behind an HTTP egress proxy
+# The upstream checksums helper includes the configmaps below, so they must
+# be loaded too; each test selects its workload with `template:`.
+templates:
+  - charts/kubescape-operator/templates/kubescape/deployment.yaml
+  - charts/kubescape-operator/templates/kubevuln/deployment.yaml
+  - charts/kubescape-operator/templates/operator/deployment.yaml
+  - charts/kubescape-operator/templates/node-agent/configmap.yaml
+  - charts/kubescape-operator/templates/configs/components-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloudapi-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloud-secret.yaml
+  - charts/kubescape-operator/templates/configs/matchingRules-configmap.yaml
+  - charts/kubescape-operator/templates/operator/configmap.yaml
+  - charts/kubescape-operator/templates/proxy-support/proxy-secret.yaml
+  - charts/kubescape-operator/templates/storage/configmap.yaml
+  - charts/kubescape-operator/templates/synchronizer/configmap.yaml
+tests:
+  # The operator calls kubevuln and kubescape by their bare Service names, which
+  # an injected NO_PROXY does not match, so it must not get proxy env vars.
+  - it: the operator opts out of proxy env injection
+    template: charts/kubescape-operator/templates/operator/deployment.yaml
+    asserts:
+      - equal:
+          path: spec.template.metadata.annotations["policies.kyverno.io/inject-proxy-env"]
+          value: exclude
+  # Without a proxy the operator cannot reach the version check service.
+  - it: the operator skips the update check
+    template: charts/kubescape-operator/templates/operator/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: KS_SKIP_UPDATE_CHECK
+            value: "true"
+  - it: the scanner skips the update check
+    template: charts/kubescape-operator/templates/kubescape/deployment.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: KS_SKIP_UPDATE_CHECK
+            value: "true"
+  # The scanner and kubevuln download from the internet, so they keep the proxy.
+  - it: the scanner keeps proxy env injection
+    template: charts/kubescape-operator/templates/kubescape/deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.metadata.annotations["policies.kyverno.io/inject-proxy-env"]
+  - it: kubevuln keeps proxy env injection
+    template: charts/kubescape-operator/templates/kubevuln/deployment.yaml
+    asserts:
+      - notExists:
+          path: spec.template.metadata.annotations["policies.kyverno.io/inject-proxy-env"]
+  # On clusters without injection the upstream proxy values do the job: they
+  # set HTTPS_PROXY only, and exempt the bare Service names.
+  - it: global.httpsProxy reaches kubevuln and leaves in-cluster names direct
+    template: charts/kubescape-operator/templates/kubevuln/deployment.yaml
+    set:
+      global.httpsProxy: http://proxy.example:3128
+      global.noProxy: .svc,.cluster.local
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: HTTPS_PROXY
+            value: http://proxy.example:3128
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: no_proxy
+            value: kubescape,kubevuln,node-agent,operator,kubernetes.default.svc.*,127.0.0.1,.svc,.cluster.local
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: HTTP_PROXY
+          any: true
