@@ -38,6 +38,8 @@ See our [full reference on how to configure apps](https://docs.giantswarm.io/tut
 
 On a cluster behind an HTTP egress proxy, see [Running behind an HTTP egress proxy](docs/proxy.md) for the hosts to allow and the values to set.
 
+On large clusters, where a node-agent update outlasts the Helm upgrade timeout, see [Operator-managed node-agent DaemonSets](docs/node-agent-autoscaler.md) for an optional mode that takes node-agent out of the Helm upgrade.
+
 ## Known issues
 
 - Flatcar images from Giant Swarm release v35 onwards ship runc only at `/opt/bin/runc`. The node-agent crash-loops when it cannot find runc, which is why `global.overrideRuntimePath` defaults to that path since app version 0.1.2. Override it on nodes with a different layout.

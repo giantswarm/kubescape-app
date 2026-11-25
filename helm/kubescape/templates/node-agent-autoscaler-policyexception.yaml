@@ -1,0 +1,31 @@
+{{- /*
+  In autoscaler mode the operator creates the node-agent DaemonSets from an
+  upstream template that takes only cpu and memory for the container and no
+  sizeLimit for the `data` and `profiles` emptyDirs, so the pods cannot satisfy
+  require-emptydir-requests-and-limits. Remove this exception once the upstream
+  chart lets us set either.
+
+  Unlike the exceptions in charts/exceptions this is not a hook: Helm must
+  delete it again when the autoscaler is turned off.
+*/ -}}
+{{- $autoscalerEnabled := dig "nodeAgent" "autoscaler" "enabled" false (index .Values "kubescape-operator") }}
+{{- if and .Values.exceptions.enabled $autoscalerEnabled }}
+apiVersion: policy.giantswarm.io/v1alpha1
+kind: PolicyException
+metadata:
+  labels:
+    policy.giantswarm.io/resource-kind: DaemonSet
+    policy.giantswarm.io/resource-name: node-agent
+    policy.giantswarm.io/resource-namespace: kubescape
+  name: node-agent-daemonset-emptydir
+  namespace: {{ .Values.exceptions.namespace }}
+spec:
+  policies:
+    - require-emptydir-requests-and-limits
+  targets:
+    - kind: DaemonSet
+      names:
+        - node-agent-*
+      namespaces:
+        - kubescape
+{{- end }}

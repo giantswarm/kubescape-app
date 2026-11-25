@@ -106,11 +106,28 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
   nodeAgent:
+    # ephemeral-storage bounds the data and profiles emptyDirs
+    # (require-emptydir-requests-and-limits). Only used while the autoscaler
+    # below is off: the operator computes cpu and memory itself and its
+    # DaemonSet template takes nothing else from this block.
     resources:
       requests:
         ephemeral-storage: 256Mi
       limits:
         ephemeral-storage: 2Gi
+    # Off by default. When enabled, the operator, not Helm, owns the node-agent
+    # DaemonSets: one `node-agent-<instance type>` per node instance type, sized
+    # as a share of node allocatable. A Helm upgrade then no longer waits for
+    # node-agent to roll out, and Flux no longer reports its failures.
+    # Read docs/node-agent-autoscaler.md before enabling or disabling.
+    autoscaler:
+      enabled: false
+      # Upstream defaults except the two limit percentages (upstream: 5 and 5).
+      # Measured node-agent memory and CPU peaks do not shrink with node size,
+      # so 5% of a small node is below what the agent uses.
+      resourcePercentages:
+        limitCPU: 15
+        limitMemory: 25
     config:
       stdoutExporter: true
       maxLearningPeriod: 12h
