@@ -5,14 +5,17 @@
   require-emptydir-requests-and-limits. Remove this exception once the upstream
   chart lets us set either.
 
-  Unlike the exceptions in charts/exceptions this is not a hook: Helm must
-  delete it again when the autoscaler is turned off.
+  A hook, like the exceptions in charts/exceptions, so that it exists before
+  the upgrade lets the operator create the DaemonSets. Helm does not track
+  hooks, so the exception stays behind when the autoscaler is turned off.
 */ -}}
 {{- $autoscalerEnabled := dig "nodeAgent" "autoscaler" "enabled" false (index .Values "kubescape-operator") }}
 {{- if and .Values.exceptions.enabled $autoscalerEnabled }}
 apiVersion: policy.giantswarm.io/v1alpha1
 kind: PolicyException
 metadata:
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
   labels:
     policy.giantswarm.io/resource-kind: DaemonSet
     policy.giantswarm.io/resource-name: node-agent

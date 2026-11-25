@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Document how Kubescape runs behind an HTTP egress proxy, the hosts it needs and the values to set, in `docs/proxy.md`.
 
-- Optional operator-managed `node-agent` DaemonSets (`kubescape-operator.nodeAgent.autoscaler.enabled`, off by default), with Giant Swarm sizing defaults and a `PolicyException` for `require-emptydir-requests-and-limits` that is only created in this mode. A Helm upgrade then no longer waits for node-agent to roll out. See `docs/node-agent-autoscaler.md`.
+- Add optional operator-managed `node-agent` DaemonSets.
 
 ### Changed
 

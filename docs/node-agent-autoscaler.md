@@ -52,17 +52,6 @@ Setting `minResources.memory` to anything other than `180Mi` turns that raise of
 A 4 vCPU, 16 GiB node gets requests of 100m and 600Mi and limits of about 510m and 3.4Gi.
 Change the numbers under `kubescape-operator.nodeAgent.autoscaler` (`resourcePercentages`, `minResources`, `maxResources`); the percentages must be whole numbers.
 
-## Policy exception
-
-The DaemonSet template takes only CPU and memory for the node-agent container, and no size limit for its `data` and `profiles` emptyDir volumes.
-The pods therefore cannot satisfy the Kyverno policy `require-emptydir-requests-and-limits`.
-While this mode is enabled the chart adds the `PolicyException` `node-agent-daemonset-emptydir` for DaemonSets named `node-agent-*`.
-It is removed again when the mode is turned off, and it is not created when `exceptions.enabled` is `false`.
-
-The exception is created in the same upgrade that enables the mode and deleted in the upgrade that disables it.
-Giant Swarm clusters run this policy in `Audit` mode, so the worst case is a policy report entry for pods created before the exception took effect, or for the operator's DaemonSets that are still there after disabling.
-Where the policy is set to `Enforce`, node-agent pods can be rejected in those two windows: create the exception before enabling, and delete the operator's DaemonSets straight after disabling.
-
 ## Enabling
 
 ```yaml

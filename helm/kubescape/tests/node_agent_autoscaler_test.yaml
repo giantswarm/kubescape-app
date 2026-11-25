@@ -117,9 +117,11 @@ tests:
                 - node-agent-*
               namespaces:
                 - kubescape
-      # Not a hook: Helm must delete it when the autoscaler is turned off.
-      - notExists:
+      # A hook, like the other exceptions: it must exist before the upgrade
+      # lets the operator create the DaemonSets.
+      - equal:
           path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
   - it: renders no policy exception when exceptions are disabled
     template: templates/node-agent-autoscaler-policyexception.yaml
     set:
