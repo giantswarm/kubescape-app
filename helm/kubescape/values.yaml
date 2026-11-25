@@ -57,6 +57,8 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
         ephemeral-storage: 4Gi
     serviceMonitor:
       enabled: true
+    # Do not report the cluster to the Kubescape version check service.
+    skipUpdateCheck: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape"
   # Runs the scan schedulers, the certgen init containers and the grype-offline-db rollout.
@@ -64,6 +66,21 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-ops-tool"
   operator:
+    # The operator calls kubevuln and kubescape by their bare Service names
+    # (`kubevuln:8080`). On clusters where a Kyverno policy injects proxy env
+    # vars into every pod, the injected NO_PROXY does not match those names, so
+    # the calls go to the proxy and never arrive. The operator needs nothing
+    # from the internet, so it opts out of the injection. See docs/proxy.md.
+    podAnnotations:
+      policies.kyverno.io/inject-proxy-env: exclude
+    # The operator's only routine external call is a daily report to the
+    # Kubescape version check service, which it cannot make without a proxy.
+    # Upstream declares `env` as a map and ranges over its values, so this is
+    # a map too; a list works but makes Helm warn on every render.
+    env:
+      skipUpdateCheck:
+        name: KS_SKIP_UPDATE_CHECK
+        value: "true"
     resources:
       requests:
         ephemeral-storage: 128Mi

@@ -11,11 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - All kubescape components, including the `node-agent` DaemonSet, tolerate the `kubernetes.io/arch=arm64:NoSchedule` taint of Giant Swarm arm64 node pools, set as the chart-wide `kubescape-operator.customScheduling.tolerations` default. Arm64 nodes now get runtime detection and node scans. If you set your own `tolerations` for a component or for `customScheduling`, include this toleration to keep arm64 support.
 
+- Document how Kubescape runs behind an HTTP egress proxy, the hosts it needs and the values to set, in `docs/proxy.md`.
+
 ### Changed
 
 - The optional `grype-offline-db` Deployment is pinned to `amd64` nodes, because its image is amd64-only.
+- The operator and the scanner no longer contact the Kubescape version check service: the operator gets `KS_SKIP_UPDATE_CHECK=true` through `kubescape-operator.operator.env`, and `kubescape-operator.kubescape.skipUpdateCheck` is `true`.
 
 ### Fixed
+
+- Start vulnerability scans on clusters where a Kyverno policy injects proxy settings into every pod. The operator calls `kubevuln` and `kubescape` by their bare Service names, which the injected `NO_PROXY` does not match, so it waited for `kubevuln` forever. The operator pod now carries the `policies.kyverno.io/inject-proxy-env: exclude` annotation.
 
 - Point the optional node-agent `sbom-scanner` sidecar at the Giant Swarm registry through `nodeAgent.sbomScanner.image`; the previous `kubevuln.sbomScanner.image` override was never read, so the sidecar pulled from `quay.io`.
 
