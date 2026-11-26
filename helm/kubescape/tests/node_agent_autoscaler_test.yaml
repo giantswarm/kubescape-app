@@ -1,0 +1,132 @@
+suite: operator-managed node-agent DaemonSets (autoscaler mode)
+# Off by default: Helm owns one node-agent DaemonSet. When
+# kubescape-operator.nodeAgent.autoscaler.enabled is true, Helm ships only a
+# DaemonSet template and the operator creates one DaemonSet per instance type.
+#
+# The upstream checksums helper includes the configmaps below, so they must
+# be loaded too; each test selects its template with `template:`.
+templates:
+  - templates/node-agent-autoscaler-policyexception.yaml
+  - charts/kubescape-operator/templates/node-agent/daemonset.yaml
+  - charts/kubescape-operator/templates/node-agent/template-configmap.yaml
+  - charts/kubescape-operator/templates/node-agent/configmap.yaml
+  - charts/kubescape-operator/templates/configs/components-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloudapi-configmap.yaml
+  - charts/kubescape-operator/templates/configs/cloud-secret.yaml
+  - charts/kubescape-operator/templates/configs/matchingRules-configmap.yaml
+  - charts/kubescape-operator/templates/operator/configmap.yaml
+  - charts/kubescape-operator/templates/proxy-support/proxy-secret.yaml
+  - charts/kubescape-operator/templates/storage/configmap.yaml
+  - charts/kubescape-operator/templates/synchronizer/configmap.yaml
+tests:
+  # Default: nothing about node-agent changes.
+  - it: keeps the Helm-managed DaemonSet by default
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    asserts:
+      - isKind:
+          of: DaemonSet
+      - equal:
+          path: metadata.name
+          value: node-agent
+  - it: renders no DaemonSet template by default
+    template: charts/kubescape-operator/templates/node-agent/template-configmap.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: renders no emptyDir policy exception by default
+    template: templates/node-agent-autoscaler-policyexception.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: leaves the autoscaler disabled in the operator config by default
+    template: charts/kubescape-operator/templates/operator/configmap.yaml
+    asserts:
+      - matchRegex:
+          path: data["config.json"]
+          pattern: '"nodeAgentAutoscaler": \{\s+"enabled": false,'
+
+  # Enabled: the operator owns the DaemonSets.
+  - it: drops the Helm-managed DaemonSet when enabled
+    template: charts/kubescape-operator/templates/node-agent/daemonset.yaml
+    set:
+      kubescape-operator.nodeAgent.autoscaler.enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+  - it: ships the DaemonSet template for the operator when enabled
+    template: charts/kubescape-operator/templates/node-agent/template-configmap.yaml
+    set:
+      kubescape-operator.nodeAgent.autoscaler.enabled: true
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: node-agent-daemonset-template
+      - matchRegex:
+          path: data["daemonset-template.yaml"]
+          pattern: 'kind: DaemonSet'
+      # The arm64 toleration must reach operator-managed pods too.
+      - matchRegex:
+          path: data["daemonset-template.yaml"]
+          pattern: 'tolerations:\s+- effect: NoSchedule\s+key: kubernetes.io/arch\s+operator: Equal\s+value: arm64'
+  # Upstream defaults except the two limit percentages (upstream: 5 and 5).
+  # The 600Mi floor is what the upstream chart applies for node SBOM
+  # generation when minResources.memory is left at its default.
+  - it: passes the Giant Swarm sizing to the operator when enabled
+    template: charts/kubescape-operator/templates/operator/configmap.yaml
+    set:
+      kubescape-operator.nodeAgent.autoscaler.enabled: true
+    asserts:
+      - matchRegex:
+          path: data["config.json"]
+          pattern: '"nodeAgentAutoscaler": \{\s+"enabled": true,'
+      - matchRegex:
+          path: data["config.json"]
+          pattern: '"requestCPU": 2,\s+"requestMemory": 2,\s+"limitCPU": 15,\s+"limitMemory": 25\s'
+      - matchRegex:
+          path: data["config.json"]
+          pattern: '"minResources": \{\s+"cpu": "100m",\s+"memory": "600Mi"'
+      - matchRegex:
+          path: data["config.json"]
+          pattern: '"maxResources": \{\s+"cpu": "2000m",\s+"memory": "4Gi"'
+  # The DaemonSet template cannot carry ephemeral-storage requests and limits
+  # or emptyDir size limits, so the operator-managed pods are exempted.
+  - it: exempts operator-managed DaemonSets from the emptyDir policy when enabled
+    template: templates/node-agent-autoscaler-policyexception.yaml
+    set:
+      kubescape-operator.nodeAgent.autoscaler.enabled: true
+    asserts:
+      - isKind:
+          of: PolicyException
+      - equal:
+          path: metadata.name
+          value: node-agent-daemonset-emptydir
+      - equal:
+          path: metadata.namespace
+          value: policy-exceptions
+      - equal:
+          path: spec.policies
+          value:
+            - require-emptydir-requests-and-limits
+      - equal:
+          path: spec.targets
+          value:
+            - kind: DaemonSet
+              names:
+                - node-agent-*
+              namespaces:
+                - kubescape
+      # A hook, like the other exceptions: it must exist before the upgrade
+      # lets the operator create the DaemonSets.
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+  - it: renders no policy exception when exceptions are disabled
+    template: templates/node-agent-autoscaler-policyexception.yaml
+    set:
+      kubescape-operator.nodeAgent.autoscaler.enabled: true
+      exceptions.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

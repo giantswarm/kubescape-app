@@ -106,11 +106,19 @@ kubescape-operator:  # @schema skipProperties: true; additionalProperties: true
     image:
       repository: "gsoci.azurecr.io/giantswarm/kubescape-synchronizer"
   nodeAgent:
+    # Only used when the autoscaler option is off.
     resources:
       requests:
         ephemeral-storage: 256Mi
       limits:
         ephemeral-storage: 2Gi
+    # Off by default. When enabled, kubescape operator manages the node-agent DaemonSets.
+    autoscaler:
+      enabled: false
+      # Use upstream defaults, except for the two limit percentages (upstream uses 5 and 5).
+      resourcePercentages:
+        limitCPU: 15
+        limitMemory: 25
     config:
       stdoutExporter: true
       maxLearningPeriod: 12h

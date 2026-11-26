@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Document how Kubescape runs behind an HTTP egress proxy, the hosts it needs and the values to set, in `docs/proxy.md`.
 
+- Add optional operator-managed `node-agent` DaemonSets.
+
 ### Changed
 
 - The optional `grype-offline-db` Deployment is pinned to `amd64` nodes, because its image is amd64-only.
