@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-26
+
 ### Added
 
 - All kubescape components, including the `node-agent` DaemonSet, tolerate the `kubernetes.io/arch=arm64:NoSchedule` taint of Giant Swarm arm64 node pools, set as the chart-wide `kubescape-operator.customScheduling.tolerations` default. Arm64 nodes now get runtime detection and node scans. If you set your own `tolerations` for a component or for `customScheduling`, include this toleration to keep arm64 support.
@@ -107,7 +109,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First release of the Kubescape app.
 
-[Unreleased]: https://github.com/giantswarm/kubescape-app/compare/v0.2.1...HEAD
+[Unreleased]: https://github.com/giantswarm/kubescape-app/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/giantswarm/kubescape-app/compare/v0.2.1...v0.3.0
 [0.2.1]: https://github.com/giantswarm/kubescape-app/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/giantswarm/kubescape-app/compare/v0.1.2...v0.2.0
 [0.1.2]: https://github.com/giantswarm/kubescape-app/compare/v0.1.1...v0.1.2
